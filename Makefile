@@ -1,0 +1,32 @@
+CC = g++
+CCFLAGS = -Wall
+EFLAGS = -I/usr/include/eigen3/
+CIMGFLAGS = -L/usr/X11R6/lib -lm -lpthread -lX11
+MAIN = main
+OBJ = $(MAIN).o
+
+driver.exe: $(OBJ)
+	$(CC) $(CCFLAGS) -o driver.exe $(OBJ)
+
+$(MAIN).o: $(MAIN).cpp
+	$(CC) $(CCFLAGS) -c $(MAIN).cpp
+
+.PHONY:
+run:
+	./driver.exe board.txt
+
+.PHONY:
+valrun:
+	valgrind ./driver.exe board.txt
+
+.PHONY:
+test:
+	./driver.exe board.txt test
+
+.PHONY:
+clean:
+
+	find . -type f -name *.o -exec rm {} \;
+	find . -type f -name driver.exe -exec rm {} \;
+	find . -type f -name *~ -exec rm {} \;
+	find . -type f -name *.swp -exec rm {} \;
