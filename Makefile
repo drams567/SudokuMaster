@@ -8,7 +8,7 @@ OBJ = $(MAIN).o
 driver.exe: $(OBJ)
 	$(CC) $(CCFLAGS) -o driver.exe $(OBJ)
 
-$(MAIN).o: $(MAIN).cpp
+$(MAIN).o: $(MAIN).cpp sudokuMaster.h
 	$(CC) $(CCFLAGS) -c $(MAIN).cpp
 
 .PHONY:
