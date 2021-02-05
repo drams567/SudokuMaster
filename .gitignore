@@ -1,0 +1,6 @@
+boards/*
+boards/
+*.exe
+*.o
+*~
+*.swp

@@ -17,7 +17,23 @@ const int X = 0;
 const int Y = 1;
 const int EMPTY_FLAG = -1;
 const char EMPTY_SYMBOL = '.';
-enum State {INITIAL, WORKING, SOLVED, ERROR};
+
+/***** Helpers *****/
+int convertToSymbol(char charSymbol)
+{
+	if(charSymbol >= '0')
+		return (int)(charSymbol - '0') - 1;
+	else
+		return EMPTY_FLAG;
+}
+
+char convertToPrintSymbol(int inSymbol)
+{
+	if(inSymbol == EMPTY_FLAG)
+		return EMPTY_SYMBOL;
+	else
+		return ('0' + inSymbol) + 1; // literal acts as an offset
+}
 
 /****** Classes ******/
 class Space {
@@ -65,32 +81,40 @@ public:
 			numv--;
 		}
 	}
+	
+	void dump()
+	{
+		cout << index[X] << "," << index[Y] << ": ";
+		for(int i = 0; i < N; i++)
+		{
+			if(vmap[i] == true)
+			{
+				cout << convertToPrintSymbol(i) << " ";
+			}
+		}
+		cout << " (Totat of " << numv << ")";
+	}
 };
 
 class SMaster {
 private:
 	Space board[N][N];
-	int state;
-	Space* solvedList[NUM_SPACES];
-	int numSolved;
-	Space* stagedList[NUM_SPACES];
-	int numStaged;
+	Space* givenList[NUM_SPACES];
+	int numGiven;
 	Space* remainList[NUM_SPACES];
 	int numRemain;
 	
 public:
 	SMaster(string boardString)
-	{
+	{	
 		// Initialize lists
 		for(int i = 0; i < NUM_SPACES; i++)
 		{
-			solvedList[i] = NULL;
-			stagedList[i] = NULL;
 			remainList[i] = NULL;
+			givenList[i] = NULL;
 		}
-		numSolved = 0;
-		numStaged = 0;
 		numRemain = 0;
+		numGiven = 0;
 		
 		// Initialize spaces, updating lists
 		for(int i = 0; i < N; i++)
@@ -103,13 +127,13 @@ public:
 				if(newSymbol == EMPTY_FLAG)
 					pushRemain(i, k);
 				else
-					pushSolved(i, k);
+					pushGiven(i, k);
 			
 			}
 		}
 		
-		for(int i = 0; i < numSolved; i++)
-			updateCousins(solvedList[i]);
+		for(int i = 0; i < numGiven; i++)
+			updateCousins(givenList[i]);
 		
 	}
 	
@@ -118,32 +142,9 @@ public:
 		// Empty lists for good practice
 		for(int i = 0; i < NUM_SPACES; i++)
 		{
-			solvedList[i] = NULL;
-			stagedList[i] = NULL;
 			remainList[i] = NULL;
+			givenList[i] = NULL;
 		}
-	}
-	
-	void pushSolved(int x, int y)
-	{
-		solvedList[numSolved] = &board[x][y];
-		numSolved++;
-	}
-	void pushSolved(Space* inSpace)
-	{
-		solvedList[numSolved] = inSpace;
-		numSolved++;
-	}
-	
-	void pushStaged(int x, int y)
-	{
-		stagedList[numStaged] = &board[x][y];
-		numStaged++;
-	}
-	void pushStaged(Space* inSpace)
-	{
-		stagedList[numStaged] = inSpace;
-		numStaged++;
 	}
 	
 	void pushRemain(int x, int y)
@@ -156,39 +157,22 @@ public:
 		remainList[numRemain] = inSpace;
 		numRemain++;
 	}
-	
-	Space* popRemain()
+	void popRemain()
 	{
-		Space* removedSpace = remainList[numRemain - 1];
 		remainList[numRemain - 1] = NULL;
 		numRemain--;
-		return removedSpace;
 	}
-	
-	Space* removeRemain(int i)
+	void removeRemain(int i)
 	{
-		Space* removeSpace = remainList[i];
 		remainList[i] = remainList[numRemain - 1];
 		remainList[numRemain - 1] = NULL;
 		numRemain--;
-		
-		return removeSpace;
 	}
 	
-	int convertToSymbol(char charSymbol)
+	void pushGiven(int x, int y)
 	{
-		if(charSymbol >= '0')
-			return (int)(charSymbol - '0') - 1;
-		else
-			return EMPTY_FLAG;
-	}
-	
-	char convertToPrintSymbol(int inSymbol)
-	{
-		if(inSymbol == EMPTY_FLAG)
-			return EMPTY_SYMBOL;
-		else
-			return ('0' + inSymbol) + 1; // literal acts as an offset
+		givenList[numGiven] = &board[x][y];
+		numGiven++;
 	}
 	
 	void printBoard()
@@ -214,12 +198,25 @@ public:
 		cout << endl;
 	}
 	
+	void dumpSpaces()
+	{
+		for(int i = 0; i < N; i++)
+		{
+			for(int k = 0; k < N; k++)
+			{
+				board[i][k].dump();
+				cout << endl;
+			}
+		}
+	}
+	
 	void updateCousins(Space* inSpace)
 	{	
 		int x = inSpace->index[X];
 		int y = inSpace->index[Y];
 		int takenSymbol = inSpace->symbol;
 	
+		// Update region
 		int startX;
 		if(x == 0)
 			startX = x;
@@ -234,8 +231,7 @@ public:
 		
 		int endX = startX + REGION_DIM;
 		int endY = startY + REGION_DIM;
-		
-		// Update region
+	
 		for(int i = startX; i < endX; i++)
 		{
 			for(int k = startY; k < endY; k++)
@@ -256,23 +252,26 @@ public:
 	{
 		while(numRemain > 0)
 		{
+			bool stuckFlag = true;
 			int i = 0;
-			while(i < numRemain)
+			while(i < numRemain && remainList[i] != NULL)
 			{
 				if(remainList[i]->numv == 1)
 				{
-					int symbol;
+					int symbol = EMPTY_FLAG;
 					for(int z = 0; z < N; z++)
 					{
 						if(remainList[i]->vmap[z] == true)
 						{
 							symbol = z;
+							break;
 						}
 					}
 					
 					remainList[i]->symbol = symbol;
 					updateCousins(remainList[i]);
-					pushSolved(removeRemain(i));
+					removeRemain(i);
+					stuckFlag = false;
 				}
 				else
 				{
@@ -282,6 +281,42 @@ public:
 		}
 	}
 	
+	void solveDebug()
+	{
+		while(numRemain > 0)
+		{
+			printBoard();
+			dumpSpaces();
+			getchar();
+		
+			bool stuckFlag = true;
+			int i = 0;
+			while(i < numRemain)
+			{
+				if(remainList[i]->numv == 1)
+				{
+					int symbol = EMPTY_FLAG;
+					for(int z = 0; z < N; z++)
+					{
+						if(remainList[i]->vmap[z] == true)
+						{
+							symbol = z;
+							break;
+						}
+					}
+					
+					remainList[i]->symbol = symbol;
+					updateCousins(remainList[i]);
+					removeRemain(i);
+					stuckFlag = false;
+				}
+				else
+				{
+					i++;
+				}
+			}
+		}
+	}
 };
 
 #endif

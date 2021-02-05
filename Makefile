@@ -11,17 +11,20 @@ driver.exe: $(OBJ)
 $(MAIN).o: $(MAIN).cpp sudokuMaster.h
 	$(CC) $(CCFLAGS) -c $(MAIN).cpp
 
+
+BOARD=boards/hard.txt
+
 .PHONY:
 run:
-	./driver.exe board.txt
+	./driver.exe $(BOARD)
 
 .PHONY:
 valrun:
-	valgrind ./driver.exe board.txt
+	valgrind ./driver.exe $(BOARD)
 
 .PHONY:
 test:
-	./driver.exe board.txt test
+	./driver.exe $(BOARD) test
 
 .PHONY:
 clean:

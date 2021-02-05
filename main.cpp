@@ -35,7 +35,7 @@ int main(const int argc, const char* argv[])
 	
 	SMaster SM(boardString);
 	SM.printBoard();
-	SM.solve();
+	SM.solveDebug();
 	SM.printBoard();
 	
 	return 0;
