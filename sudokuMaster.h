@@ -311,25 +311,14 @@ public:
 			printBoard();
 			dumpSpaces();
 			getchar();
-		
+			
 			bool stuckFlag = true;
 			int i = 0;
-			while(i < numRemain)
+			while(i < numRemain && remainList[i] != NULL)
 			{
 				if(remainList[i]->numv == 1)
 				{
-					int symbol = EMPTY_FLAG;
-					for(int z = 0; z < N; z++)
-					{
-						if(remainList[i]->vmap[z] == true)
-						{
-							symbol = z;
-							break;
-						}
-					}
-					
-					remainList[i]->symbol = symbol;
-					updateCousins(remainList[i]);
+					makeMove(remainList[i]);
 					removeRemain(i);
 					stuckFlag = false;
 				}
@@ -337,6 +326,11 @@ public:
 				{
 					i++;
 				}
+			}
+			
+			if(stuckFlag == true)
+			{
+				solveAdvanced();
 			}
 		}
 	}
