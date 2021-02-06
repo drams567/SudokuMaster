@@ -7,6 +7,7 @@
 using namespace std;
 
 class SMaster;
+class Space;
 
 /****** Constants *******/
 const int N = 9;
@@ -36,6 +37,12 @@ char convertToPrintSymbol(int inSymbol)
 }
 
 /****** Classes ******/
+struct Move {
+	Space* space;
+	int symbol;
+	bool guess;
+};
+
 class Space {
 	friend class SMaster;
 	
@@ -248,6 +255,22 @@ public:
 		}
 	}
 	
+	void makeMove(Space* inSpace)
+	{
+		int symbol = EMPTY_FLAG;
+		for(int z = 0; z < N; z++)
+		{
+			if(inSpace->vmap[z] == true)
+			{
+				symbol = z;
+				break;
+			}
+		}
+		
+		inSpace->symbol = symbol;
+		updateCousins(inSpace);
+	}
+	
 	void solve()
 	{
 		while(numRemain > 0)
@@ -258,18 +281,7 @@ public:
 			{
 				if(remainList[i]->numv == 1)
 				{
-					int symbol = EMPTY_FLAG;
-					for(int z = 0; z < N; z++)
-					{
-						if(remainList[i]->vmap[z] == true)
-						{
-							symbol = z;
-							break;
-						}
-					}
-					
-					remainList[i]->symbol = symbol;
-					updateCousins(remainList[i]);
+					makeMove(remainList[i]);
 					removeRemain(i);
 					stuckFlag = false;
 				}
@@ -278,7 +290,18 @@ public:
 					i++;
 				}
 			}
+			
+			if(stuckFlag == true)
+			{
+				solveAdvanced();
+			}
 		}
+	}
+	
+	void solveAdvanced()
+	{	
+		cout << "Cannot be solved trivially..." << endl;
+		exit(0);
 	}
 	
 	void solveDebug()
