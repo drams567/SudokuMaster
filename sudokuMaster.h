@@ -161,7 +161,7 @@ public:
 		{
 			vector<Space*> cList = getCousins(givenList[i]);
 			int symbol = givenList[i]->symbol;
-			for(vector<Space*>::iterator spaceIt = cList.begin(); it != cList.end(); it++)
+			for(vector<Space*>::iterator spaceIt = cList.begin(); spaceIt != cList.end(); spaceIt++)
 			{
 				(*spaceIt)->strikeSymbol(symbol);
 			}
@@ -262,10 +262,10 @@ public:
 	{
 		int symbol = EMPTY_FLAG;
 		int i = 0;
-		for(symbol == EMPTY_FLAG && i < N)
+		while(symbol == EMPTY_FLAG && i < N)
 		{
 			if(space->vmap[i] == true)
-				symbol = z;
+				symbol = i;
 			
 			i++;
 		}
