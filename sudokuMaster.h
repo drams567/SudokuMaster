@@ -2,6 +2,7 @@
 #define SUDOKU_MASTER_H
 
 #include <iostream>
+#include <vector>
 #include <string>
 
 using namespace std;
@@ -12,6 +13,7 @@ class Space;
 /****** Constants *******/
 const int N = 9;
 const int NUM_SPACES = N*N;
+const int NUM_COUSINS = N*3;
 const int REGION_FACTOR = 3;
 const int REGION_DIM = N / REGION_FACTOR;
 const int X = 0;
@@ -37,18 +39,11 @@ char convertToPrintSymbol(int inSymbol)
 }
 
 /****** Classes ******/
-struct Move {
-	Space* space;
-	int symbol;
-	bool guess;
-};
-
 class Space {
 	friend class SMaster;
 	
 private:
 	int symbol;
-	bool fixed;
 	int index[2];
 	bool vmap[N];	// viability map
 	int numv;
@@ -56,6 +51,16 @@ private:
 public:
 	Space(){}
 	~Space(){}
+	
+	void operator=(const Space inSpace)
+	{
+		symbol = inSpace.symbol;
+		index[X] = inSpace.index[X];
+		index[Y] = inSpace.index[Y];
+		for(int i = 0; i < N; i++)
+			vmap[i] = inSpace.vmap[i];
+		numv = inSpace.numv;
+	}
 	
 	void init(int x, int y, int newSymbol)
 	{
@@ -65,14 +70,12 @@ public:
 		
 		if(symbol == EMPTY_FLAG)
 		{
-			fixed = false;
 			for(int i = 0; i < N; i++)
 				vmap[i] = true;
 			numv = N;
 		}
 		else
 		{
-			fixed = true;
 			for(int i = 0; i < N; i++)
 				vmap[i] = false;
 			vmap[symbol] = true;
@@ -89,6 +92,15 @@ public:
 		}
 	}
 	
+	void unstrikeSymbol(int goodSymbol)
+	{
+		if(vmap[goodSymbol] == false)
+		{
+			vmap[goodSymbol] = true;
+			numv++;
+		}
+	}
+	
 	void dump()
 	{
 		cout << index[X] << "," << index[Y] << ": ";
@@ -99,8 +111,16 @@ public:
 				cout << convertToPrintSymbol(i) << " ";
 			}
 		}
-		cout << " (Totat of " << numv << ")";
+		cout << " (Total of " << numv << ")";
 	}
+};
+
+struct Guess {
+	Space* guessSpace;
+	int guessSymbol;
+	Space boardState[N][N];
+	Space* remainListState[NUM_SPACES];
+	int numRemainState;
 };
 
 class SMaster {
@@ -110,6 +130,9 @@ private:
 	int numGiven;
 	Space* remainList[NUM_SPACES];
 	int numRemain;
+	Guess guessList[NUM_SPACES];
+	int numGuess;
+	
 	
 public:
 	SMaster(string boardString)
@@ -122,6 +145,7 @@ public:
 		}
 		numRemain = 0;
 		numGiven = 0;
+		numGuess = 0;
 		
 		// Initialize spaces, updating lists
 		for(int i = 0; i < N; i++)
@@ -140,7 +164,15 @@ public:
 		}
 		
 		for(int i = 0; i < numGiven; i++)
-			updateCousins(givenList[i]);
+		{
+			vector<Space*> cList = getCousins(givenList[i]);
+			int symbol = givenList[i]->symbol;
+			for(int k = 0; k < (int)cList.size(); k++)
+			{
+				Space* currSpace = cList.at(k);
+				currSpace->strikeSymbol(symbol);
+			}
+		}
 		
 	}
 	
@@ -182,6 +214,17 @@ public:
 		numGiven++;
 	}
 	
+	void pushGuess(Guess newGuess)
+	{
+		guessList[numGuess] = newGuess;
+		numGuess++;
+	}
+	Guess popGuess()
+	{
+		numGuess--;
+		return guessList[numGuess];
+	}
+	
 	void printBoard()
 	{
 		cout << endl;
@@ -217,11 +260,128 @@ public:
 		}
 	}
 	
-	void updateCousins(Space* inSpace)
+	void dumpRemainList()
+	{
+		cout << "Num remain: " << numRemain << endl;
+		for(int i = 0; i < numRemain; i++)
+		{
+			remainList[i]->dump();
+			cout << endl;
+		}
+	}
+	
+	void makeMove(Space* space, bool isGuess)
+	{
+		int symbol = EMPTY_FLAG;
+		for(int z = 0; z < N; z++)
+		{
+			if(space->vmap[z] == true)
+			{
+				symbol = z;
+				break;
+			}
+		}
+		
+		if(isGuess == true)
+		{
+			Guess guess;
+			guess.guessSpace = space;
+			guess.guessSymbol = symbol;
+			for(int i = 0; i < N; i++)
+			{
+				for(int k = 0; k < N; k++)
+				{
+					guess.boardState[i][k] = board[i][k];
+				}
+			}
+			
+			for(int i = 0; i < numRemain; i++)
+			{
+				guess.remainListState[i] = remainList[i];
+				guess.numRemainState = numRemain;
+			}
+			
+			pushGuess(guess);
+		}
+		
+		vector<Space*> cList = getCousins(space);	
+		space->symbol = symbol;
+		for(int i = 0; i < (int)cList.size(); i++)
+		{
+			Space* currSpace = cList.at(i);
+			currSpace->strikeSymbol(symbol);
+		}
+	}
+	
+	void solve()
+	{
+		bool stuckFlag;
+		bool guessFlag = false;
+		
+		while(numRemain > 0)
+		{
+			printBoard();
+			dumpRemainList();
+			getchar();
+			
+			stuckFlag = true;
+			int i = 0;
+			while(i < numRemain)
+			{
+				if(remainList[i]->numv == 1)
+				{
+					makeMove(remainList[i], false);
+					removeRemain(i);
+					stuckFlag = false;
+				}
+				else if(remainList[i]->numv == 0)
+				{
+					Space* badSpace = remainList[i];
+					while(badSpace->numv == 0)
+					{
+						Guess badGuess = popGuess();
+						restoreFromGuess(badGuess);
+						badGuess.guessSpace->strikeSymbol(badGuess.guessSymbol);
+					}
+				}
+				else
+				{
+					i++;
+				}
+			}
+			
+			if(stuckFlag == true)
+			{
+				guessFlag = true;
+				makeGuess();
+			}
+		}
+	}
+	
+	int getBestSpaceIndex()
+	{
+		int bestSpaceIndex = 0;
+		int bestNumV = N + 1; // vnum has a max value of N
+		Space* currSpace = NULL;
+		for(int i = 0; i < numRemain; i++)
+		{
+			currSpace = remainList[i];
+			if(currSpace->numv < bestNumV)
+			{
+				bestNumV = currSpace->numv;
+				bestSpaceIndex = i;
+			}
+		}
+		
+		return bestSpaceIndex;
+	}
+	
+	vector<Space*> getCousins(Space* inSpace)
 	{	
 		int x = inSpace->index[X];
 		int y = inSpace->index[Y];
 		int takenSymbol = inSpace->symbol;
+		vector<Space*> cList;
 	
 		// Update region
 		int startX;
@@ -239,101 +399,77 @@ public:
 		int endX = startX + REGION_DIM;
 		int endY = startY + REGION_DIM;
 	
+		// Fill cousin list
+		int z = 0;
+		cList.resize(NUM_COUSINS);
 		for(int i = startX; i < endX; i++)
 		{
 			for(int k = startY; k < endY; k++)
 			{
-				board[i][k].strikeSymbol(takenSymbol);
+				cList.at(z) = &board[i][k];
+				z++;
 			}
 		}
 
 		// Update row and column
 		for(int i = 0; i < N; i++)
 		{
-			board[x][i].strikeSymbol(takenSymbol);
-			board[i][y].strikeSymbol(takenSymbol);
-		}
-	}
-	
-	void makeMove(Space* inSpace)
-	{
-		int symbol = EMPTY_FLAG;
-		for(int z = 0; z < N; z++)
-		{
-			if(inSpace->vmap[z] == true)
-			{
-				symbol = z;
-				break;
-			}
+			cList.at(z) = &board[x][i];
+			z++;
+			cList.at(z) = &board[i][y];
+			z++;
 		}
 		
-		inSpace->symbol = symbol;
-		updateCousins(inSpace);
+		return cList;
 	}
 	
-	void solve()
+	void restoreFromGuess(Guess badGuess)
 	{
-		while(numRemain > 0)
+		for(int i = 0; i < N; i++)
 		{
-			bool stuckFlag = true;
-			int i = 0;
-			while(i < numRemain && remainList[i] != NULL)
+			for(int k = 0; k < N; k++)
 			{
-				if(remainList[i]->numv == 1)
-				{
-					makeMove(remainList[i]);
-					removeRemain(i);
-					stuckFlag = false;
-				}
-				else
-				{
-					i++;
-				}
-			}
-			
-			if(stuckFlag == true)
-			{
-				solveAdvanced();
+				board[i][k] = badGuess.boardState[i][k];
 			}
 		}
+		for(int i = 0; i < badGuess.numRemainState; i++)
+		{
+			remainList[i] = badGuess.remainListState[i];
+		}
+		numRemain = badGuess.numRemainState;
 	}
 	
-	void solveAdvanced()
+	void makeGuess()
 	{	
-		cout << "Cannot be solved trivially..." << endl;
-		exit(0);
-	}
-	
-	void solveDebug()
-	{
-		while(numRemain > 0)
+		bool goodGuess = false;
+		while(goodGuess == false) 
 		{
-			printBoard();
-			dumpSpaces();
-			getchar();
-			
-			bool stuckFlag = true;
-			int i = 0;
-			while(i < numRemain && remainList[i] != NULL)
+			goodGuess = true;
+			int bestSpaceIndex = getBestSpaceIndex();
+			makeMove(remainList[bestSpaceIndex], true);
+			vector<Space*> cList = getCousins(remainList[bestSpaceIndex]);
+			for(int i = 0; i < (int)cList.size(); i++)
 			{
-				if(remainList[i]->numv == 1)
+				Space* currSpace = cList.at(i);
+				if(currSpace->symbol == EMPTY_FLAG && currSpace->numv == 0)
 				{
-					makeMove(remainList[i]);
-					removeRemain(i);
-					stuckFlag = false;
-				}
-				else
-				{
-					i++;
+					goodGuess = false;
 				}
 			}
 			
-			if(stuckFlag == true)
+			if(goodGuess == false)
 			{
-				solveAdvanced();
+				Guess badGuess = popGuess();
+				restoreFromGuess(badGuess);
+				badGuess.guessSpace->strikeSymbol(badGuess.guessSymbol);
+			}
+			else
+			{
+				removeRemain(bestSpaceIndex);
 			}
 		}
 	}
+	
 };
 
 #endif
