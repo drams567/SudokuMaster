@@ -92,15 +92,6 @@ public:
 		}
 	}
 	
-	void unstrikeSymbol(int goodSymbol)
-	{
-		if(vmap[goodSymbol] == false)
-		{
-			vmap[goodSymbol] = true;
-			numv++;
-		}
-	}
-	
 	void dump()
 	{
 		cout << index[X] << "," << index[Y] << ": ";
@@ -126,8 +117,6 @@ struct Guess {
 class SMaster {
 private:
 	Space board[N][N];
-	Space* givenList[NUM_SPACES];
-	int numGiven;
 	Space* remainList[NUM_SPACES];
 	int numRemain;
 	Guess guessList[NUM_SPACES];
@@ -141,11 +130,12 @@ public:
 		for(int i = 0; i < NUM_SPACES; i++)
 		{
 			remainList[i] = NULL;
-			givenList[i] = NULL;
 		}
 		numRemain = 0;
-		numGiven = 0;
 		numGuess = 0;
+		
+		Space* givenList[NUM_SPACES];
+		int numGiven = 0;
 		
 		// Initialize spaces, updating lists
 		for(int i = 0; i < N; i++)
@@ -156,10 +146,14 @@ public:
 				board[i][k].init(i, k, newSymbol);
 				
 				if(newSymbol == EMPTY_FLAG)
+				{
 					pushRemain(i, k);
+				}
 				else
-					pushGiven(i, k);
-			
+				{
+					givenList[numGiven] = &board[i][k];
+					numGiven++;
+				}
 			}
 		}
 		
@@ -167,10 +161,9 @@ public:
 		{
 			vector<Space*> cList = getCousins(givenList[i]);
 			int symbol = givenList[i]->symbol;
-			for(int k = 0; k < (int)cList.size(); k++)
+			for(vector<Space*>::iterator spaceIt = cList.begin(); it != cList.end(); it++)
 			{
-				Space* currSpace = cList.at(k);
-				currSpace->strikeSymbol(symbol);
+				(*spaceIt)->strikeSymbol(symbol);
 			}
 		}
 		
@@ -182,7 +175,6 @@ public:
 		for(int i = 0; i < NUM_SPACES; i++)
 		{
 			remainList[i] = NULL;
-			givenList[i] = NULL;
 		}
 	}
 	
@@ -196,22 +188,17 @@ public:
 		remainList[numRemain] = inSpace;
 		numRemain++;
 	}
+	
 	void popRemain()
 	{
-		remainList[numRemain - 1] = NULL;
 		numRemain--;
+		remainList[numRemain] = NULL;
 	}
 	void removeRemain(int i)
 	{
-		remainList[i] = remainList[numRemain - 1];
-		remainList[numRemain - 1] = NULL;
 		numRemain--;
-	}
-	
-	void pushGiven(int x, int y)
-	{
-		givenList[numGiven] = &board[x][y];
-		numGiven++;
+		remainList[i] = remainList[numRemain];
+		remainList[numRemain] = NULL;
 	}
 	
 	void pushGuess(Guess newGuess)
@@ -219,6 +206,7 @@ public:
 		guessList[numGuess] = newGuess;
 		numGuess++;
 	}
+	
 	Guess popGuess()
 	{
 		numGuess--;
@@ -273,13 +261,13 @@ public:
 	void makeMove(Space* space, bool isGuess)
 	{
 		int symbol = EMPTY_FLAG;
-		for(int z = 0; z < N; z++)
+		int i = 0;
+		for(symbol == EMPTY_FLAG && i < N)
 		{
-			if(space->vmap[z] == true)
-			{
+			if(space->vmap[i] == true)
 				symbol = z;
-				break;
-			}
+			
+			i++;
 		}
 		
 		if(isGuess == true)
@@ -316,13 +304,8 @@ public:
 	void solve()
 	{
 		bool stuckFlag;
-		bool guessFlag = false;
-		
 		while(numRemain > 0)
 		{
-			printBoard();
-			dumpRemainList();
-			getchar();
 			
 			stuckFlag = true;
 			int i = 0;
@@ -352,7 +335,6 @@ public:
 			
 			if(stuckFlag == true)
 			{
-				guessFlag = true;
 				makeGuess();
 			}
 		}
@@ -380,7 +362,6 @@ public:
 	{	
 		int x = inSpace->index[X];
 		int y = inSpace->index[Y];
-		int takenSymbol = inSpace->symbol;
 		vector<Space*> cList;
 	
 		// Update region
