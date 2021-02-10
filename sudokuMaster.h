@@ -183,7 +183,7 @@ public:
 			// Cull symbol of current starting space from its 'cousin' spaces
 			vector<Space*> cList = getCousins(givenList[i]);
 			int symbol = givenList[i]->symbol;
-			for(vector<Space*>::iterator spaceIt = cList.begin(); it != cList.end(); it++)
+			for(vector<Space*>::iterator spaceIt = cList.begin(); spaceIt != cList.end(); spaceIt++)
 			{
 				(*spaceIt)->strikeSymbol(symbol);
 			}
@@ -285,7 +285,92 @@ public:
 		}
 	}
 	
+<<<<<<< HEAD
 	// Helpers //	
+=======
+	void makeMove(Space* space, bool isGuess)
+	{
+		int symbol = EMPTY_FLAG;
+		int i = 0;
+		while(symbol == EMPTY_FLAG && i < N)
+		{
+			if(space->vmap[i] == true)
+				symbol = i;
+			
+			i++;
+		}
+		
+		if(isGuess == true)
+		{
+			Guess guess;
+			guess.guessSpace = space;
+			guess.guessSymbol = symbol;
+			for(int i = 0; i < N; i++)
+			{
+				for(int k = 0; k < N; k++)
+				{
+					guess.boardState[i][k] = board[i][k];
+				}
+			}
+			
+			for(int i = 0; i < numRemain; i++)
+			{
+				guess.remainListState[i] = remainList[i];
+				guess.numRemainState = numRemain;
+			}
+			
+			pushGuess(guess);
+		}
+		
+		vector<Space*> cList = getCousins(space);	
+		space->symbol = symbol;
+		for(int i = 0; i < (int)cList.size(); i++)
+		{
+			Space* currSpace = cList.at(i);
+			currSpace->strikeSymbol(symbol);
+		}
+	}
+	
+	void solve()
+	{
+		bool stuckFlag;
+		while(numRemain > 0)
+		{
+			
+			stuckFlag = true;
+			int i = 0;
+			while(i < numRemain)
+			{
+				if(remainList[i]->numv == 1)
+				{
+					makeMove(remainList[i], false);
+					removeRemain(i);
+					stuckFlag = false;
+				}
+				else if(remainList[i]->numv == 0)
+				{
+					Space* badSpace = remainList[i];
+					while(badSpace->numv == 0)
+					{
+						Guess badGuess = popGuess();
+						restoreFromGuess(badGuess);
+						badGuess.guessSpace->strikeSymbol(badGuess.guessSymbol);
+					}
+				}
+				else
+				{
+					i++;
+				}
+			}
+			
+			if(stuckFlag == true)
+			{
+				makeGuess();
+			}
+		}
+	}
+	
+>>>>>>> master
 	int getBestSpaceIndex()
 	{
 		int bestSpaceIndex = 0;
