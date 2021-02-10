@@ -503,7 +503,7 @@ public:
 		
 		vector<Space*> cList = getCousins(space);	
 		space->symbol = symbol;
-		for(vector<Space*>::iterator = cList.begin(); spaceIt != cList.end(); spaceIt++)
+		for(vector<Space*>::iterator spaceIt = cList.begin(); spaceIt != cList.end(); spaceIt++)
 			(*spaceIt)->strikeSymbol(symbol);
 		
 	}
