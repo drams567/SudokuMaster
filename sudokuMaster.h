@@ -10,6 +10,7 @@ using namespace std;
 class SMaster;
 class Space;
 
+/************************/
 /****** Constants *******/
 const int N = 9;
 const int NUM_SPACES = N*N;
@@ -21,7 +22,8 @@ const int Y = 1;
 const int EMPTY_FLAG = -1;
 const char EMPTY_SYMBOL = '.';
 
-/***** Helpers *****/
+/*********************/
+/* Utility Functions */
 int convertToSymbol(char charSymbol)
 {
 	if(charSymbol >= '0')
@@ -38,20 +40,23 @@ char convertToPrintSymbol(int inSymbol)
 		return ('0' + inSymbol) + 1; // literal acts as an offset
 }
 
+/*********************/
 /****** Classes ******/
 class Space {
 	friend class SMaster;
 	
 private:
-	int symbol;
-	int index[2];
-	bool vmap[N];	// viability map
-	int numv;
+	int symbol;		// current symbol, empty space indicated by empty flag constant
+	int index[2];	// board position {X, Y}
+	bool vmap[N];	// candidate viability map
+	int numv;		// num of viable candidates
 
 public:
+	// Cosntruct - Destruct //
 	Space(){}
 	~Space(){}
 	
+	// Operators //
 	void operator=(const Space inSpace)
 	{
 		symbol = inSpace.symbol;
@@ -62,18 +67,21 @@ public:
 		numv = inSpace.numv;
 	}
 	
+	// Initialize //
 	void init(int x, int y, int newSymbol)
 	{
 		symbol = newSymbol;
 		index[X] = x;
 		index[Y] = y;
 		
+		// Space starts empty
 		if(symbol == EMPTY_FLAG)
 		{
 			for(int i = 0; i < N; i++)
 				vmap[i] = true;
 			numv = N;
 		}
+		// Symbol is given
 		else
 		{
 			for(int i = 0; i < N; i++)
@@ -83,18 +91,13 @@ public:
 		}
 	}
 	
-	void strikeSymbol(int badSymbol)
-	{
-		if(vmap[badSymbol] == true)
-		{
-			vmap[badSymbol] = false;
-			numv--;
-		}
-	}
-	
+	// Testing //
 	void dump()
 	{
+		// Print index
 		cout << index[X] << "," << index[Y] << ": ";
+		
+		// Print list of viable candidates
 		for(int i = 0; i < N; i++)
 		{
 			if(vmap[i] == true)
@@ -102,63 +105,82 @@ public:
 				cout << convertToPrintSymbol(i) << " ";
 			}
 		}
+		
+		// Print number of viable candidates
 		cout << " (Total of " << numv << ")";
+	}
+
+	// Methods //
+	void strikeSymbol(int badSymbol)
+	{
+		// Cull candidate symbol
+		if(vmap[badSymbol] == true)
+		{
+			vmap[badSymbol] = false;
+			numv--;
+		}
 	}
 };
 
 struct Guess {
-	Space* guessSpace;
-	int guessSymbol;
-	Space boardState[N][N];
-	Space* remainListState[NUM_SPACES];
-	int numRemainState;
+	Space* guessSpace;		// Guess Information members
+	int guessSymbol;		//
+	Space boardState[N][N];				// Game state information members
+	Space* remainListState[NUM_SPACES];	//
+	int numRemainState;					//
 };
 
 class SMaster {
 private:
-	Space board[N][N];
-	Space* remainList[NUM_SPACES];
-	int numRemain;
-	Guess guessList[NUM_SPACES];
-	int numGuess;
-	
+	Space board[N][N];				// Sudoku board
+	Space* remainList[NUM_SPACES];	// Remaining spaces to solve
+	int numRemain;					// Number of remaining spaces to solve
+	Guess guessList[NUM_SPACES];	// Stack of guess moves currently taken
+	int numGuess;					// Number of guess moves currently taken
 	
 public:
+	// Constructors //
 	SMaster(string boardString)
 	{	
-		// Initialize lists
+		// Initialize members
 		for(int i = 0; i < NUM_SPACES; i++)
-		{
 			remainList[i] = NULL;
-		}
 		numRemain = 0;
 		numGuess = 0;
-		
+
+		// Initialize list of starting spaces (spaces which are given to us)
+		// This list is used to cull potential candidates of surrounding spaces after the board has been initialized
 		Space* givenList[NUM_SPACES];
 		int numGiven = 0;
 		
-		// Initialize spaces, updating lists
+		// Initialize board to match board string
 		for(int i = 0; i < N; i++)
 		{
 			for(int k = 0; k < N; k++)
 			{
+				// Initialize current space with position and value
 				int newSymbol = convertToSymbol(boardString[(i*N) + k]);
 				board[i][k].init(i, k, newSymbol);
 				
+				// If space starts empty
 				if(newSymbol == EMPTY_FLAG)
 				{
+					// Add to list of remaining spaces
 					pushRemain(i, k);
 				}
 				else
 				{
+					// Add to list of starting spaces
 					givenList[numGiven] = &board[i][k];
 					numGiven++;
 				}
 			}
 		}
 		
+		// Update candidate lists from starting spaces
 		for(int i = 0; i < numGiven; i++)
 		{
+			// Cull symbol of current starting space from its 'cousin' spaces
 			vector<Space*> cList = getCousins(givenList[i]);
 			int symbol = givenList[i]->symbol;
 			for(vector<Space*>::iterator spaceIt = cList.begin(); it != cList.end(); it++)
@@ -169,6 +191,7 @@ public:
 		
 	}
 	
+	// Destructor //
 	~SMaster()
 	{
 		// Empty lists for good practice
@@ -178,11 +201,13 @@ public:
 		}
 	}
 	
+	// List Functions //
 	void pushRemain(int x, int y)
 	{
 		remainList[numRemain] = &board[x][y];
 		numRemain++;
 	}
+	
 	void pushRemain(Space* inSpace)
 	{
 		remainList[numRemain] = inSpace;
@@ -194,6 +219,7 @@ public:
 		numRemain--;
 		remainList[numRemain] = NULL;
 	}
+	
 	void removeRemain(int i)
 	{
 		numRemain--;
@@ -213,6 +239,7 @@ public:
 		return guessList[numGuess];
 	}
 	
+	// Debugging //
 	void printBoard()
 	{
 		cout << endl;
@@ -258,88 +285,7 @@ public:
 		}
 	}
 	
-	void makeMove(Space* space, bool isGuess)
-	{
-		int symbol = EMPTY_FLAG;
-		int i = 0;
-		for(symbol == EMPTY_FLAG && i < N)
-		{
-			if(space->vmap[i] == true)
-				symbol = z;
-			
-			i++;
-		}
-		
-		if(isGuess == true)
-		{
-			Guess guess;
-			guess.guessSpace = space;
-			guess.guessSymbol = symbol;
-			for(int i = 0; i < N; i++)
-			{
-				for(int k = 0; k < N; k++)
-				{
-					guess.boardState[i][k] = board[i][k];
-				}
-			}
-			
-			for(int i = 0; i < numRemain; i++)
-			{
-				guess.remainListState[i] = remainList[i];
-				guess.numRemainState = numRemain;
-			}
-			
-			pushGuess(guess);
-		}
-		
-		vector<Space*> cList = getCousins(space);	
-		space->symbol = symbol;
-		for(int i = 0; i < (int)cList.size(); i++)
-		{
-			Space* currSpace = cList.at(i);
-			currSpace->strikeSymbol(symbol);
-		}
-	}
-	
-	void solve()
-	{
-		bool stuckFlag;
-		while(numRemain > 0)
-		{
-			
-			stuckFlag = true;
-			int i = 0;
-			while(i < numRemain)
-			{
-				if(remainList[i]->numv == 1)
-				{
-					makeMove(remainList[i], false);
-					removeRemain(i);
-					stuckFlag = false;
-				}
-				else if(remainList[i]->numv == 0)
-				{
-					Space* badSpace = remainList[i];
-					while(badSpace->numv == 0)
-					{
-						Guess badGuess = popGuess();
-						restoreFromGuess(badGuess);
-						badGuess.guessSpace->strikeSymbol(badGuess.guessSymbol);
-					}
-				}
-				else
-				{
-					i++;
-				}
-			}
-			
-			if(stuckFlag == true)
-			{
-				makeGuess();
-			}
-		}
-	}
-	
+	// Helpers //	
 	int getBestSpaceIndex()
 	{
 		int bestSpaceIndex = 0;
@@ -404,22 +350,7 @@ public:
 		return cList;
 	}
 	
-	void restoreFromGuess(Guess badGuess)
-	{
-		for(int i = 0; i < N; i++)
-		{
-			for(int k = 0; k < N; k++)
-			{
-				board[i][k] = badGuess.boardState[i][k];
-			}
-		}
-		for(int i = 0; i < badGuess.numRemainState; i++)
-		{
-			remainList[i] = badGuess.remainListState[i];
-		}
-		numRemain = badGuess.numRemainState;
-	}
-	
+	// Procedures //
 	void makeGuess()
 	{	
 		bool goodGuess = false;
@@ -447,6 +378,103 @@ public:
 			else
 			{
 				removeRemain(bestSpaceIndex);
+			}
+		}
+	}
+	
+	void makeMove(Space* space, bool isGuess)
+	{
+		int symbol = EMPTY_FLAG;
+		int i = 0;
+		for(symbol == EMPTY_FLAG && i < N)
+		{
+			if(space->vmap[i] == true)
+				symbol = z;
+			
+			i++;
+		}
+		
+		if(isGuess == true)
+		{
+			Guess guess;
+			guess.guessSpace = space;
+			guess.guessSymbol = symbol;
+			for(int i = 0; i < N; i++)
+			{
+				for(int k = 0; k < N; k++)
+				{
+					guess.boardState[i][k] = board[i][k];
+				}
+			}
+			
+			for(int i = 0; i < numRemain; i++)
+			{
+				guess.remainListState[i] = remainList[i];
+				guess.numRemainState = numRemain;
+			}
+			
+			pushGuess(guess);
+		}
+		
+		vector<Space*> cList = getCousins(space);	
+		space->symbol = symbol;
+		for(vector<Space*>::iterator = cList.begin(); spaceIt != cList.end(); spaceIt++)
+			(*spaceIt)->strikeSymbol(symbol);
+		
+	}
+	
+	void restoreFromGuess(Guess badGuess)
+	{
+		for(int i = 0; i < N; i++)
+		{
+			for(int k = 0; k < N; k++)
+			{
+				board[i][k] = badGuess.boardState[i][k];
+			}
+		}
+		for(int i = 0; i < badGuess.numRemainState; i++)
+		{
+			remainList[i] = badGuess.remainListState[i];
+		}
+		numRemain = badGuess.numRemainState;
+	}
+	
+	// Solve Board //
+	void solve()
+	{
+		bool stuckFlag;
+		while(numRemain > 0)
+		{
+			
+			stuckFlag = true;
+			int i = 0;
+			while(i < numRemain)
+			{
+				if(remainList[i]->numv == 1)
+				{
+					makeMove(remainList[i], false);
+					removeRemain(i);
+					stuckFlag = false;
+				}
+				else if(remainList[i]->numv == 0)
+				{
+					Space* badSpace = remainList[i];
+					while(badSpace->numv == 0)
+					{
+						Guess badGuess = popGuess();
+						restoreFromGuess(badGuess);
+						badGuess.guessSpace->strikeSymbol(badGuess.guessSymbol);
+					}
+				}
+				else
+				{
+					i++;
+				}
+			}
+			
+			if(stuckFlag == true)
+			{
+				makeGuess();
 			}
 		}
 	}
