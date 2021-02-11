@@ -3,6 +3,7 @@
 #include <string>
 
 #include "sudokuMaster.h"
+#include "defs.h"
 
 using namespace std;
 
