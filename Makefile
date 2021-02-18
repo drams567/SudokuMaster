@@ -6,7 +6,7 @@ LDFLAGS = -lncurses
 
 MAIN = main
 EXE = $(MAIN).exe
-OBJ = $(MAIN).o sudokuMaster.o space.o util.o
+OBJ = $(MAIN).o sudokuMaster.o sudokuChecker.o space.o util.o
 
 vpath %.h include
 vpath %.cpp src
@@ -14,11 +14,14 @@ vpath %.cpp src
 $(EXE): $(OBJ)
 	$(CC) $(CCFLAGS) -o $(EXE) $(OBJ)
 
-$(MAIN).o: src/$(MAIN).cpp sudokuMaster.o space.o include/defs.h
+$(MAIN).o: src/$(MAIN).cpp sudokuMaster.o sudokuChecker.o space.o include/defs.h
 	$(CC) $(CCFLAGS) -c src/$(MAIN).cpp
 
 sudokuMaster.o: src/sudokuMaster.cpp include/sudokuMaster.h space.o include/defs.h
 	$(CC) $(CCFLAGS) -c src/sudokuMaster.cpp
+
+sudokuChecker.o: src/sudokuChecker.cpp include/sudokuChecker.h util.o include/defs.h
+	$(CC) $(CCFLAGS) -c src/sudokuChecker.cpp
 
 space.o: src/space.cpp include/space.h util.o include/defs.h
 	$(CC) $(CCFLAGS) -c src/space.cpp
@@ -33,10 +36,12 @@ run:
 .PHONY:
 valrun:
 	valgrind ./$(EXE) $(BOARD)
+.PHONY:
+test:
+	./$(EXE) boards/test.txt
 
 .PHONY:
 clean:
-
 	find . -type f -name '*.o' -exec rm {} \;
 	find . -type f -name '$(EXE)' -exec rm {} \;
 	find . -type f -name '*~' -exec rm {} \;
