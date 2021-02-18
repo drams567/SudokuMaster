@@ -1,43 +1,43 @@
 CC = g++
-CCFLAGS = -Wall
+CCFLAGS = -Wall -O2 -Iinclude -Isrc
 EFLAGS = -I/usr/include/eigen3/
 CIMGFLAGS = -L/usr/X11R6/lib -lm -lpthread -lX11
+LDFLAGS = -lncurses
+
 MAIN = main
+EXE = $(MAIN).exe
 OBJ = $(MAIN).o sudokuMaster.o space.o util.o
 
-driver.exe: $(OBJ)
-	$(CC) $(CCFLAGS) -o driver.exe $(OBJ)
+vpath %.h include
+vpath %.cpp src
 
-$(MAIN).o: $(MAIN).cpp sudokuMaster.h space.h defs.h
-	$(CC) $(CCFLAGS) -c $(MAIN).cpp
+$(EXE): $(OBJ)
+	$(CC) $(CCFLAGS) -o $(EXE) $(OBJ)
 
-sudokuMaster.o: sudokuMaster.cpp sudokuMaster.h defs.h
-	$(CC) $(CCFLAGS) -c sudokuMaster.cpp
+$(MAIN).o: src/$(MAIN).cpp sudokuMaster.o space.o include/defs.h
+	$(CC) $(CCFLAGS) -c src/$(MAIN).cpp
 
-space.o: space.cpp space.h defs.h
-	$(CC) $(CCFLAGS) -c space.cpp
+sudokuMaster.o: src/sudokuMaster.cpp include/sudokuMaster.h space.o include/defs.h
+	$(CC) $(CCFLAGS) -c src/sudokuMaster.cpp
+
+space.o: src/space.cpp include/space.h util.o include/defs.h
+	$(CC) $(CCFLAGS) -c src/space.cpp
 
 util.o: util.cpp util.h defs.h
-	$(CC) $(CCFLAGS) -c util.cpp
+	$(CC) $(CCFLAGS) -c src/util.cpp
 
 BOARD=boards/hard.txt
-
 .PHONY:
 run:
-	./driver.exe $(BOARD)
-
+	./$(EXE) $(BOARD)
 .PHONY:
 valrun:
-	valgrind ./driver.exe $(BOARD)
-
-.PHONY:
-test:
-	./driver.exe $(BOARD) test
+	valgrind ./$(EXE) $(BOARD)
 
 .PHONY:
 clean:
 
 	find . -type f -name '*.o' -exec rm {} \;
-	find . -type f -name 'driver.exe' -exec rm {} \;
+	find . -type f -name '$(EXE)' -exec rm {} \;
 	find . -type f -name '*~' -exec rm {} \;
 	find . -type f -name '*.swp' -exec rm {} \;

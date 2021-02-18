@@ -11,7 +11,7 @@ Space::Space(){}
 Space::~Space(){}
 
 // Operators //
-void Space::operator=(const Space inSpace)
+void Space::operator=(Space inSpace)
 {
 	symbol = inSpace.symbol;
 	index[X] = inSpace.index[X];

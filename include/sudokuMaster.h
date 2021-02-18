@@ -53,8 +53,11 @@ public:
 	void pushGuess(Guess newGuess);
 	Guess popGuess();
 	
+	// Setters and Getters //
+	string getBoard();
+	
 	// Debugging //
-	void printBoard();
+	void dumpBoard();
 	void dumpSpaces();
 	void dumpRemainList();
 };

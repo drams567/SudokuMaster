@@ -3,7 +3,6 @@
 #include <string>
 
 #include "sudokuMaster.h"
-#include "defs.h"
 
 using namespace std;
 
@@ -35,9 +34,12 @@ int main(const int argc, const char* argv[])
 	}
 	
 	SMaster SM(boardString);
-	SM.printBoard();
+	SM.dumpBoard();
 	SM.solve();
-	SM.printBoard();
+	SM.dumpBoard();
+	
+	string test = SM.getBoard();
+	cout << "\nBoard String: " << test << "\n";
 	
 	return 0;
 }

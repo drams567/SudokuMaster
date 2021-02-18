@@ -105,8 +105,25 @@ Guess SMaster::popGuess()
 	return guessList[numGuess];
 }
 
+// Setters and Getters //
+string SMaster::getBoard()
+{
+	string boardString(NUM_SPACES, ' ');
+	int z = 0;
+	for(int i = 0; i < N; i++)
+	{
+		for(int k = 0; k < N; k++)
+		{
+			z = (i * N) + k;
+			boardString[z] = convertToPrintSymbol(board[i][k].symbol);
+		}
+	}
+	
+	return boardString;
+}
+
 // Debugging //
-void SMaster::printBoard()
+void SMaster::dumpBoard()
 {
 	cout << endl;
 	cout << string(N*3 + 5, '-') << endl;

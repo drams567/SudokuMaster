@@ -18,7 +18,7 @@ public:
 	~Space();
 	
 	// Operators //
-	void operator=(const Space inSpace);
+	void operator=(Space inSpace);
 	
 	// Initialize //
 	void init(int x, int y, int newSymbol);
