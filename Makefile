@@ -6,7 +6,7 @@ LDFLAGS = -lncurses
 
 MAIN = main
 EXE = $(MAIN).exe
-OBJ = $(MAIN).o sudokuMaster.o sudokuChecker.o space.o util.o
+OBJ = $(MAIN).o sudokuMaster.o sudokuChecker.o sudokuGen.o space.o util.o
 
 vpath %.h include
 vpath %.cpp src
@@ -14,7 +14,7 @@ vpath %.cpp src
 $(EXE): $(OBJ)
 	$(CC) $(CCFLAGS) -o $(EXE) $(OBJ)
 
-$(MAIN).o: src/$(MAIN).cpp sudokuMaster.o sudokuChecker.o space.o include/defs.h
+$(MAIN).o: src/$(MAIN).cpp sudokuMaster.o sudokuChecker.o sudokuGen.o space.o include/defs.h
 	$(CC) $(CCFLAGS) -c src/$(MAIN).cpp
 
 sudokuMaster.o: src/sudokuMaster.cpp include/sudokuMaster.h space.o include/defs.h
@@ -22,6 +22,9 @@ sudokuMaster.o: src/sudokuMaster.cpp include/sudokuMaster.h space.o include/defs
 
 sudokuChecker.o: src/sudokuChecker.cpp include/sudokuChecker.h util.o include/defs.h
 	$(CC) $(CCFLAGS) -c src/sudokuChecker.cpp
+
+sudokuGen.o: src/sudokuGen.cpp include/sudokuGen.h space.o util.o include/defs.h
+	$(CC) $(CCFLAGS) -c src/sudokuGen.cpp
 
 space.o: src/space.cpp include/space.h util.o include/defs.h
 	$(CC) $(CCFLAGS) -c src/space.cpp

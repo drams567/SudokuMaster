@@ -17,6 +17,8 @@ const char EMPTY_SYMBOL = '.';
 /******* Classes ********/
 class Space;
 class SMaster;
+class SChecker;
+class SGen;
 struct Guess;
 
 #endif

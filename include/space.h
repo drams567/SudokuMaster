@@ -5,6 +5,7 @@
 
 class Space {
 	friend class SMaster;
+	friend class SGen;
 	
 private:
 	int symbol;		// current symbol, empty space indicated by empty flag constant
