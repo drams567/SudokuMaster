@@ -6,6 +6,8 @@
 using namespace std;
 
 // Constructors //
+SMaster::SMaster() {}
+
 SMaster::SMaster(string boardString)
 {	
 	// Initialize members
@@ -158,7 +160,7 @@ void SMaster::dumpSpaces()
 	}
 }
 
-void SMaster::dumpRemainList()
+void SMaster::dumpRemain()
 {
 	cout << "Num remain: " << numRemain << endl;
 	for(int i = 0; i < numRemain; i++)

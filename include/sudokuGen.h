@@ -9,16 +9,12 @@
 #include "util.h"
 #include "defs.h"
 #include "space.h"
+#include "sudokuMaster.h"
 
 using namespace std;
 
-class SGen 
+class SGen : public SMaster
 {
-private:
-	Space board[N][N];
-	Space* emptyList[NUM_SPACES];
-	int numEmpty;
-
 public:
 	SGen();
 	SGen(unsigned int seed);
@@ -27,15 +23,9 @@ public:
 	void init();
 	string genBoard();
 	string genBoard(const int numGiven);
-	vector<Space*> getCousins(Space* inSpace);
 	int getRandMove(Space* space);
-	void removeEmpty(int i);
-	string getBoard();
 	
 	void test(const int numGiven);
-	void dumpBoard();
-	void dumpSpaces();
-	void dumpEmpty();
 };
 
 #endif

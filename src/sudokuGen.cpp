@@ -17,7 +17,7 @@ SGen::SGen(unsigned int seed)
 SGen::~SGen()
 {
 	for(int i = 0; i < NUM_SPACES; i++)
-		emptyList[i] = NULL;
+		remainList[i] = NULL;
 }
 
 void SGen::init()
@@ -27,49 +27,10 @@ void SGen::init()
 		for(int k = 0; k < N; k++)
 		{
 			board[i][k].init(i, k, EMPTY_FLAG);
-			emptyList[(i*N) + k] = &board[i][k];
+			remainList[(i*N) + k] = &board[i][k];
 		}
 	}
-	numEmpty = NUM_SPACES;
-}
-
-vector<Space*> SGen::getCousins(Space* inSpace)
-{	
-	vector<Space*> cList;
-	int startX, startY, endX, endY;
-	int x, y;
-	
-	// Get region
-	inSpace->getRegion(startX, startY);
-	endX = startX + REGION_DIM;
-	endY = startY + REGION_DIM;
-
-	// Fill cousin list
-	int z = 0;
-	cList.resize(NUM_COUSINS);
-	for(int i = startX; i < endX; i++)
-	{
-		for(int k = startY; k < endY; k++)
-		{
-			cList.at(z) = &board[i][k];
-			z++;
-		}
-	}
-
-	// Get row and column
-	x = inSpace->index[X];
-	y = inSpace->index[Y];
-
-	// Update row and column
-	for(int i = 0; i < N; i++)
-	{
-		cList.at(z) = &board[x][i];
-		z++;
-		cList.at(z) = &board[i][y];
-		z++;
-	}
-	
-	return cList;
+	numRemain = NUM_SPACES;
 }
 
 int SGen::getRandMove(Space* space)
@@ -90,29 +51,6 @@ int SGen::getRandMove(Space* space)
 	return symbol;
 }
 
-void SGen::removeEmpty(int i)
-{
-	numEmpty--;
-	emptyList[i] = emptyList[numEmpty];
-	emptyList[numEmpty] = NULL;
-}
-
-string SGen::getBoard()
-{
-	string boardString(NUM_SPACES, ' ');
-	int z = 0;
-	for(int i = 0; i < N; i++)
-	{
-		for(int k = 0; k < N; k++)
-		{
-			z = (i * N) + k;
-			boardString[z] = convertToPrintSymbol(board[i][k].symbol);
-		}
-	}
-	
-	return boardString;
-}
-
 string SGen::genBoard()
 {
 	int randNumGiven = rand() % (NUM_SPACES - 5) + 1;
@@ -126,10 +64,10 @@ string SGen::genBoard(const int numGiven)
 	int randIndex;
 	int randMove;
 	Space* randSpace;
-	while(numEmpty > (NUM_SPACES - numGiven))
+	while(numRemain > (NUM_SPACES - numGiven))
 	{
-		randIndex = rand() % numEmpty;
-		randSpace = emptyList[randIndex];
+		randIndex = rand() % numRemain;
+		randSpace = remainList[randIndex];
 		vector<Space*> cList = getCousins(randSpace);
 		bool goodMove;
 		do
@@ -148,7 +86,7 @@ string SGen::genBoard(const int numGiven)
 		} while(goodMove == false);
 		
 		randSpace->symbol = randMove;
-		removeEmpty(randIndex);
+		removeRemain(randIndex);
 		for(vector<Space*>::iterator spaceIt = cList.begin(); spaceIt != cList.end(); spaceIt++)
 		{
 			Space* currSpace = *spaceIt;
@@ -159,51 +97,6 @@ string SGen::genBoard(const int numGiven)
 	return getBoard();
 }
 
-// Debugging //
-void SGen::dumpBoard()
-{
-	cout << endl;
-	cout << string(N*3 + 5, '-') << endl;
-	for(int i = 0; i < N; i++)
-	{
-		for(int k = 0; k < N; k++)
-		{
-			if(k % 3 == 0)
-				cout << "|";
-			
-			cout << " " << convertToPrintSymbol(board[i][k].symbol) << " ";
-		}
-		cout << " |" << endl;
-		if(i % 3 == 2)
-			cout << string(N*3 + 5, '-') << endl;
-		else
-			cout << endl;
-	}
-	
-	cout << endl;
-}
-
-void SGen::dumpSpaces()
-{
-	for(int i = 0; i < N; i++)
-	{
-		for(int k = 0; k < N; k++)
-		{
-			board[i][k].dump();
-			cout << endl;
-		}
-	}
-}
-
-void SGen::dumpEmpty()
-{
-	for(int i = 0; i < numEmpty; i++)
-	{
-		emptyList[i]->dump();
-		cout << endl;
-	}
-}
-
 void SGen::test(const int numGiven)
 {
 	init();
@@ -211,13 +104,13 @@ void SGen::test(const int numGiven)
 	int randIndex;
 	int randMove;
 	Space* randSpace;
-	while(numEmpty > (NUM_SPACES - numGiven))
+	while(numRemain > (NUM_SPACES - numGiven))
 	{
 		dumpBoard();
 		cout << endl;
 		
-		randIndex = rand() % numEmpty;
-		randSpace = emptyList[randIndex];
+		randIndex = rand() % numRemain;
+		randSpace = remainList[randIndex];
 		
 		cout << endl << "Space to choose from: ";
 		randSpace->dump();
@@ -251,7 +144,7 @@ void SGen::test(const int numGiven)
 				cout << endl << "move " << convertToPrintSymbol(randMove) << " failed" << endl;
 				dumpBoard();
 				cout << endl;
-				dumpEmpty();
+				dumpRemain();
 				cout << endl << "Space to choose from: ";
 				randSpace->dump();
 				cout << endl;
@@ -261,7 +154,7 @@ void SGen::test(const int numGiven)
 		} while(goodMove == false);
 		
 		randSpace->symbol = randMove;
-		removeEmpty(randIndex);
+		removeRemain(randIndex);
 		for(vector<Space*>::iterator spaceIt = cList.begin(); spaceIt != cList.end(); spaceIt++)
 		{
 			Space* currSpace = *spaceIt;

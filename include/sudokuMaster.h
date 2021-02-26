@@ -21,7 +21,7 @@ struct Guess {
 };
 
 class SMaster {
-private:
+protected:
 	Space board[N][N];				// Sudoku board
 	Space* remainList[NUM_SPACES];	// Remaining spaces to solve
 	int numRemain;					// Number of remaining spaces to solve
@@ -30,6 +30,7 @@ private:
 	
 public:
 	// Construct and Destruct //
+	SMaster();
 	SMaster(string boardString);
 	~SMaster();
 	
@@ -59,7 +60,7 @@ public:
 	// Debugging //
 	void dumpBoard();
 	void dumpSpaces();
-	void dumpRemainList();
+	void dumpRemain();
 };
 
 #endif

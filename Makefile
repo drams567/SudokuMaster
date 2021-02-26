@@ -17,14 +17,14 @@ $(EXE): $(OBJ)
 $(MAIN).o: src/$(MAIN).cpp sudokuMaster.o sudokuChecker.o sudokuGen.o space.o include/defs.h
 	$(CC) $(CCFLAGS) -c src/$(MAIN).cpp
 
-sudokuMaster.o: src/sudokuMaster.cpp include/sudokuMaster.h space.o include/defs.h
-	$(CC) $(CCFLAGS) -c src/sudokuMaster.cpp
-
 sudokuChecker.o: src/sudokuChecker.cpp include/sudokuChecker.h util.o include/defs.h
 	$(CC) $(CCFLAGS) -c src/sudokuChecker.cpp
 
-sudokuGen.o: src/sudokuGen.cpp include/sudokuGen.h space.o util.o include/defs.h
+sudokuGen.o: src/sudokuGen.cpp include/sudokuGen.h sudokuMaster.o space.o util.o include/defs.h
 	$(CC) $(CCFLAGS) -c src/sudokuGen.cpp
+
+sudokuMaster.o: src/sudokuMaster.cpp include/sudokuMaster.h space.o include/defs.h
+	$(CC) $(CCFLAGS) -c src/sudokuMaster.cpp
 
 space.o: src/space.cpp include/space.h util.o include/defs.h
 	$(CC) $(CCFLAGS) -c src/space.cpp
