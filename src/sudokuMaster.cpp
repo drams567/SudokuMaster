@@ -189,25 +189,14 @@ int SMaster::getBestSpaceIndex()
 
 vector<Space*> SMaster::getCousins(Space* inSpace)
 {	
-	int x = inSpace->index[X];
-	int y = inSpace->index[Y];
 	vector<Space*> cList;
-
-	// Update region
-	int startX;
-	if(x == 0)
-		startX = x;
-	else
-		startX = x - (x % REGION_DIM);
+	int startX, startY, endX, endY;
+	int x, y;
 	
-	int startY;
-	if(y == 0)
-		startY = y;
-	else
-		startY = y - (y % REGION_DIM);
-	
-	int endX = startX + REGION_DIM;
-	int endY = startY + REGION_DIM;
+	// Get region
+	inSpace->getRegion(startX, startY);
+	endX = startX + REGION_DIM;
+	endY = startY + REGION_DIM;
 
 	// Fill cousin list
 	int z = 0;
@@ -220,6 +209,10 @@ vector<Space*> SMaster::getCousins(Space* inSpace)
 			z++;
 		}
 	}
+
+	// Get row and column
+	x = inSpace->index[X];
+	y = inSpace->index[Y];
 
 	// Update row and column
 	for(int i = 0; i < N; i++)

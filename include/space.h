@@ -29,6 +29,7 @@ public:
 
 	// Methods //
 	void strikeSymbol(int badSymbol);
+	void getRegion(int &startX, int &startY);
 };
 
 #endif

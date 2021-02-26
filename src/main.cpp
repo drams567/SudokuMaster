@@ -4,6 +4,7 @@
 
 #include "sudokuMaster.h"
 #include "sudokuChecker.h"
+#include "sudokuGen.h"
 
 using namespace std;
 
@@ -34,6 +35,8 @@ int main(const int argc, const char* argv[])
 		exit(0);
 	}
 
+	
+	/*
 	SMaster SM(boardString);
 	SM.dumpBoard();
 	cout << endl;
@@ -41,13 +44,26 @@ int main(const int argc, const char* argv[])
 	SM.dumpBoard();
 	cout << endl;
 	
-	/*
-	printBoard(boardString);
+	boardString = SM.getBoard();
 	
 	cout << "TESTING SChecker" << endl;
 	SChecker SC(boardString);
 	bool ret = SC.check();
 	SC.dumpResults();
 	*/
+	
+	unsigned int testSeed = 12344321;
+	SGen Generator(testSeed);
+	Generator.test(50);
+	
+	/*
+	for(int i = 0; i < 1; i++)
+	{
+		cout << "Board " << (i+1) << ":" << endl;
+		printBoard(Generator.genBoard(50));
+		cout << endl;
+	}
+	*/
+	
 	return 0;
 }

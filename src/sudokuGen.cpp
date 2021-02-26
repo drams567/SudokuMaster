@@ -14,6 +14,12 @@ SGen::SGen(unsigned int seed)
 	init();
 }
 
+SGen::~SGen()
+{
+	for(int i = 0; i < NUM_SPACES; i++)
+		emptyList[i] = NULL;
+}
+
 void SGen::init()
 {
 	for(int i = 0; i < N; i++)
@@ -29,25 +35,14 @@ void SGen::init()
 
 vector<Space*> SGen::getCousins(Space* inSpace)
 {	
-	int x = inSpace->index[X];
-	int y = inSpace->index[Y];
 	vector<Space*> cList;
-
-	// Update region
-	int startX;
-	if(x == 0)
-		startX = x;
-	else
-		startX = x - (x % REGION_DIM);
+	int startX, startY, endX, endY;
+	int x, y;
 	
-	int startY;
-	if(y == 0)
-		startY = y;
-	else
-		startY = y - (y % REGION_DIM);
-	
-	int endX = startX + REGION_DIM;
-	int endY = startY + REGION_DIM;
+	// Get region
+	inSpace->getRegion(startX, startY);
+	endX = startX + REGION_DIM;
+	endY = startY + REGION_DIM;
 
 	// Fill cousin list
 	int z = 0;
@@ -60,6 +55,10 @@ vector<Space*> SGen::getCousins(Space* inSpace)
 			z++;
 		}
 	}
+
+	// Get row and column
+	x = inSpace->index[X];
+	y = inSpace->index[Y];
 
 	// Update row and column
 	for(int i = 0; i < N; i++)
@@ -78,7 +77,7 @@ int SGen::getRandMove(Space* space)
 	int symbol = rand() % N;
 	while(space->vmap[symbol] == false)
 	{
-		if(symbol == (N -1))
+		if(symbol == (N - 1))
 		{
 			symbol = 0;
 		}
@@ -91,6 +90,29 @@ int SGen::getRandMove(Space* space)
 	return symbol;
 }
 
+void SGen::removeEmpty(int i)
+{
+	numEmpty--;
+	emptyList[i] = emptyList[numEmpty];
+	emptyList[numEmpty] = NULL;
+}
+
+string SGen::getBoard()
+{
+	string boardString(NUM_SPACES, ' ');
+	int z = 0;
+	for(int i = 0; i < N; i++)
+	{
+		for(int k = 0; k < N; k++)
+		{
+			z = (i * N) + k;
+			boardString[z] = convertToPrintSymbol(board[i][k].symbol);
+		}
+	}
+	
+	return boardString;
+}
+
 string SGen::genBoard()
 {
 	int randNumGiven = rand() % (NUM_SPACES - 5) + 1;
@@ -99,16 +121,154 @@ string SGen::genBoard()
 
 string SGen::genBoard(const int numGiven)
 {
+	init();
+
 	int randIndex;
+	int randMove;
 	Space* randSpace;
 	while(numEmpty > (NUM_SPACES - numGiven))
 	{
 		randIndex = rand() % numEmpty;
 		randSpace = emptyList[randIndex];
 		vector<Space*> cList = getCousins(randSpace);
+		bool goodMove;
+		do
+		{
+			goodMove = true;
+			randMove = getRandMove(randSpace);
+			for(vector<Space*>::iterator spaceIt = cList.begin(); spaceIt != cList.end(); spaceIt++)
+			{
+				Space* currSpace = *spaceIt;
+				if(currSpace->symbol == EMPTY_FLAG && currSpace->numv == 1 && currSpace->vmap[randMove] == true && currSpace != randSpace)
+				{
+					goodMove = false;
+				}
+				randSpace->strikeSymbol(randMove);
+			}
+		} while(goodMove == false);
 		
+		randSpace->symbol = randMove;
+		removeEmpty(randIndex);
+		for(vector<Space*>::iterator spaceIt = cList.begin(); spaceIt != cList.end(); spaceIt++)
+		{
+			Space* currSpace = *spaceIt;
+			currSpace->strikeSymbol(randMove);
+		}
 	}
 	
-	return " ";
+	return getBoard();
+}
+
+// Debugging //
+void SGen::dumpBoard()
+{
+	cout << endl;
+	cout << string(N*3 + 5, '-') << endl;
+	for(int i = 0; i < N; i++)
+	{
+		for(int k = 0; k < N; k++)
+		{
+			if(k % 3 == 0)
+				cout << "|";
+			
+			cout << " " << convertToPrintSymbol(board[i][k].symbol) << " ";
+		}
+		cout << " |" << endl;
+		if(i % 3 == 2)
+			cout << string(N*3 + 5, '-') << endl;
+		else
+			cout << endl;
+	}
+	
+	cout << endl;
+}
+
+void SGen::dumpSpaces()
+{
+	for(int i = 0; i < N; i++)
+	{
+		for(int k = 0; k < N; k++)
+		{
+			board[i][k].dump();
+			cout << endl;
+		}
+	}
+}
+
+void SGen::dumpEmpty()
+{
+	for(int i = 0; i < numEmpty; i++)
+	{
+		emptyList[i]->dump();
+		cout << endl;
+	}
+}
+
+void SGen::test(const int numGiven)
+{
+	init();
+
+	int randIndex;
+	int randMove;
+	Space* randSpace;
+	while(numEmpty > (NUM_SPACES - numGiven))
+	{
+		dumpBoard();
+		cout << endl;
+		
+		randIndex = rand() % numEmpty;
+		randSpace = emptyList[randIndex];
+		
+		cout << endl << "Space to choose from: ";
+		randSpace->dump();
+		cout << endl;
+		
+		vector<Space*> cList = getCousins(randSpace);
+		bool goodMove;
+		do
+		{
+			goodMove = true;
+			randMove = getRandMove(randSpace);
+			
+			
+			cout << "trying move " << convertToPrintSymbol(randMove) << endl;
+			
+			for(vector<Space*>::iterator spaceIt = cList.begin(); spaceIt != cList.end(); spaceIt++)
+			{
+				Space* currSpace = *spaceIt;
+				if(currSpace->symbol == EMPTY_FLAG && currSpace->numv == 1 && currSpace->vmap[randMove] == true && currSpace != randSpace)
+				{
+					cout << "bad space: ";
+					currSpace->dump();
+					cout << endl;
+					goodMove = false;
+				}
+				randSpace->strikeSymbol(randMove);
+			}
+			
+			if(goodMove == false)
+			{
+				cout << endl << "move " << convertToPrintSymbol(randMove) << " failed" << endl;
+				dumpBoard();
+				cout << endl;
+				dumpEmpty();
+				cout << endl << "Space to choose from: ";
+				randSpace->dump();
+				cout << endl;
+				getchar();
+			}
+			
+		} while(goodMove == false);
+		
+		randSpace->symbol = randMove;
+		removeEmpty(randIndex);
+		for(vector<Space*>::iterator spaceIt = cList.begin(); spaceIt != cList.end(); spaceIt++)
+		{
+			Space* currSpace = *spaceIt;
+			currSpace->strikeSymbol(randMove);
+		}
+		
+		getchar();
+	}
 }
 

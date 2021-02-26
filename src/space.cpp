@@ -45,17 +45,6 @@ void Space::init(int x, int y, int newSymbol)
 	}
 }
 
-// Methods //
-void Space::strikeSymbol(int badSymbol)
-{
-	// Cull candidate symbol
-	if(vmap[badSymbol] == true)
-	{
-		vmap[badSymbol] = false;
-		numv--;
-	}
-}
-
 // Testing //
 void Space::dump()
 {
@@ -73,4 +62,33 @@ void Space::dump()
 	
 	// Print number of viable candidates
 	cout << " (Total of " << numv << ")";
+}
+
+// Methods //
+void Space::strikeSymbol(int badSymbol)
+{
+	// Cull candidate symbol
+	if(vmap[badSymbol] == true)
+	{
+		vmap[badSymbol] = false;
+		numv--;
+	}
+}
+
+void Space::getRegion(int &startX, int &startY)
+{
+	int x = index[X];
+	int y = index[Y];
+
+	// Get region starting row
+	if(x == 0)
+		startX = x;
+	else
+		startX = x - (x % REGION_DIM);
+
+	// Get region starting column
+	if(y == 0)
+		startY = y;
+	else
+		startY = y - (y % REGION_DIM);
 }
