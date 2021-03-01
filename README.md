@@ -3,7 +3,7 @@
 **Set of classes used to solve, generate, and analyze sudoku puzzles efficiently.**
 <br>
 <br>
-Main components are the following three classes:
+Driver used for testing and demonstration purposes. Main components consist of the following three classes:
 <ul>
   <li>SMaster - Used for solving puzzles. Capable of solving regardless of number of 'hints'. Will accept and solve and empty board.</li>
   <li>SGen (in development) - Child class of SMaster used for randomly generating puzzles.</li>
