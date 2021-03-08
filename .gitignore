@@ -1,5 +1,6 @@
 boards/*
 boards/
+*.txt
 *.exe
 *.o
 *~
