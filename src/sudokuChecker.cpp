@@ -26,17 +26,17 @@ bool SChecker::check()
 	// Check regional squares and number of missing spaces
 	int regCheckList[N];
 	int regSymbol;
-	for(int i = 0; i < REGION_FACTOR; i++)
+	for(int i = 0; i < REGION_DIM; i++)
 	{
-		for(int k = 0; k < REGION_FACTOR; k++)
+		for(int k = 0; k < REGION_DIM; k++)
 		{
 			for(int z = 0; z < N; z++)
 				regCheckList[z] = 0;
 			
-			int startX = i * REGION_FACTOR;
-			int startY = k * REGION_FACTOR;
-			int endX = startX + REGION_FACTOR;
-			int endY = startY + REGION_FACTOR;
+			int startX = i * REGION_DIM;
+			int startY = k * REGION_DIM;
+			int endX = startX + REGION_DIM;
+			int endY = startY + REGION_DIM;
 			for(int x = startX; x < endX; x++)
 			{
 				for(int y = startY; y < endY; y++)
@@ -47,7 +47,7 @@ bool SChecker::check()
 						regCheckList[regSymbol]++;
 						if(regCheckList[regSymbol] > 1)
 						{
-							cout << "Violation: region " << ((i * REGION_FACTOR) + k + 1) << " - placement of extra " << convertToPrintSymbol(regSymbol) << endl;
+							cout << "Violation: region " << ((i * REGION_DIM) + k + 1) << " - placement of extra " << convertToPrintSymbol(regSymbol) << endl;
 							numViolate++;
 							win = false;
 						}

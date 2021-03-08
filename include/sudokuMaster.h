@@ -41,10 +41,12 @@ public:
 	void makeGuess();
 	void makeMove(Space* space, bool isGuess);
 	void restoreFromGuess(Guess badGuess);
+	void cullReserved(int startX, int startY);
 	
 	// Helpers //
 	int getBestSpaceIndex();
 	vector<Space*> getCousins(Space* inSpace);
+	bool checkRegionState(int startX, int startY);
 	
 	// List Functions //
 	void pushRemain(int x, int y);

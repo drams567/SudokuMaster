@@ -70,10 +70,13 @@ string SGen::genBoard(const int numGiven)
 		randSpace = remainList[randIndex];
 		vector<Space*> cList = getCousins(randSpace);
 		bool goodMove;
+		int regX, regY;
 		do
 		{
 			goodMove = true;
 			randMove = getRandMove(randSpace);
+			
+			// Check if move will move any spaces candidate list to zero
 			for(vector<Space*>::iterator spaceIt = cList.begin(); spaceIt != cList.end(); spaceIt++)
 			{
 				Space* currSpace = *spaceIt;
@@ -83,6 +86,18 @@ string SGen::genBoard(const int numGiven)
 				}
 				randSpace->strikeSymbol(randMove);
 			}
+			
+			// Check if move will put local region into bad state
+			int saveSymbol;
+			saveSymbol = randSpace->symbol;
+			randSpace->symbol = randMove; // simulate move
+			randSpace->getRegion(regX, regY);
+			if(checkRegionState(regX, regY) == false)
+			{
+				goodMove = false;
+			}
+			randSpace->symbol = saveSymbol; // return space to original state
+			
 		} while(goodMove == false);
 		
 		randSpace->symbol = randMove;
@@ -92,6 +107,18 @@ string SGen::genBoard(const int numGiven)
 			Space* currSpace = *spaceIt;
 			currSpace->strikeSymbol(randMove);
 		}
+		
+		// Extra culling
+		for(int i = 0; i < REGION_FACTOR; i++)
+		{
+			for(int k = 0; k < REGION_FACTOR; k++)
+			{
+				int x = i * REGION_DIM;
+				int y = k * REGION_DIM;
+				cullReserved(x, y);
+			}
+		}
+		
 	}
 	
 	return getBoard();
@@ -139,6 +166,19 @@ void SGen::test(const int numGiven)
 				randSpace->strikeSymbol(randMove);
 			}
 			
+			// Check if move will put local region into bad state
+			int saveSymbol;
+			int regX, regY;
+			saveSymbol = randSpace->symbol;
+			randSpace->symbol = randMove; // simulate move
+			randSpace->getRegion(regX, regY);
+			if(checkRegionState(regX, regY) == false)
+			{
+				cout << "bad region state avoided" << endl;
+				goodMove = false;
+			}
+			randSpace->symbol = saveSymbol; // return space to original state
+			
 			if(goodMove == false)
 			{
 				cout << endl << "move " << convertToPrintSymbol(randMove) << " failed" << endl;
@@ -159,6 +199,17 @@ void SGen::test(const int numGiven)
 		{
 			Space* currSpace = *spaceIt;
 			currSpace->strikeSymbol(randMove);
+		}
+		
+		// Extra culling
+		for(int i = 0; i < REGION_FACTOR; i++)
+		{
+			for(int k = 0; k < REGION_FACTOR; k++)
+			{
+				int x = i * REGION_DIM;
+				int y = k * REGION_DIM;
+				cullReserved(x, y);
+			}
 		}
 		
 		getchar();

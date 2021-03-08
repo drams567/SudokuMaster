@@ -228,6 +228,56 @@ vector<Space*> SMaster::getCousins(Space* inSpace)
 	return cList;
 }
 
+bool SMaster::checkRegionState(int startX, int startY)
+{
+	bool regRemainList[N];
+	bool regVList[N];
+	
+	int endX = startX + REGION_DIM;
+	int endY = startY + REGION_DIM;
+
+	for(int i = 0; i < N; i++)
+	{
+		regRemainList[i] = true;	// Assume all remain
+		regVList[i] = false;		// Assume no spaces have candidates
+	}
+
+	// Mark symbols missing from region, and symbols that can be placed in region
+	for(int x = startX; x < endX; x++)
+	{
+		for(int y = startY; y < endY; y++)
+		{
+			int symbol = board[x][y].symbol;
+			if(symbol != EMPTY_FLAG)
+			{
+				regRemainList[symbol] = false;
+			}
+			else
+			{
+				for(int i = 0; i < N; i++)
+				{
+					if(board[x][y].vmap[i] == true)
+					{
+						regVList[i] = true;
+					}
+				}
+			}
+		}
+	}
+
+	// Search for symbol that is missing and cannot be placed
+	for(int i = 0; i < N; i++)
+	{
+		if(regRemainList[i] == true && regVList[i] == false)
+		{
+			return false;
+		}
+	}
+
+	return true;
+
+}
+
 // Procedures //
 void SMaster::makeGuess()
 {	
@@ -315,6 +365,113 @@ void SMaster::restoreFromGuess(Guess badGuess)
 		remainList[i] = badGuess.remainListState[i];
 	}
 	numRemain = badGuess.numRemainState;
+}
+
+void SMaster::cullReserved(int startX, int startY)
+{
+	// Init
+	int endX = startX + REGION_DIM;
+	int endY = startY + REGION_DIM;
+	vector<int> rowList[N];
+	vector<int> colList[N];
+
+	// Get list of candidate spaces for missing symbols
+	for(int x = startX; x < endX; x++)
+	{
+		for(int y = startY; y < endY; y++)
+		{
+			if(board[x][y].symbol == EMPTY_FLAG)
+			{
+				for(int i = 0; i < N; i++)
+				{
+					if(board[x][y].vmap[i] == true)
+					{
+						rowList[i].push_back(x);
+						colList[i].push_back(y);
+					}
+				}
+			}
+		}
+	}
+	
+	// Check for distinct rows or columns and perform culling
+	for(int i = 0; i < N; i++)
+	{
+		// init
+		int numRows = (int)rowList[i].size();
+		int numCols = (int)colList[i].size();
+		bool distinctRow;
+		bool distinctCol;
+		int row, col;
+		int k;
+		
+		// check for distinct row
+		if(numRows > 0)
+		{
+			distinctRow = true;
+			row = rowList[i].at(0);
+			k = 0;
+			while(k < numRows && distinctRow == true)
+			{
+				if(rowList[i].at(k) != row)
+				{
+					distinctRow = false;
+				}
+				k++;
+			}
+		}
+		else
+		{
+			distinctRow = false;
+		}
+		
+		// check for distinct column
+		if(numCols > 0)
+		{
+			distinctCol = true;
+			col = colList[i].at(0);
+			k = 0;
+			while(k < numCols && distinctCol == true)
+			{
+				if(colList[i].at(k) != col)
+				{
+					distinctCol = false;
+				}
+				k++;
+			}
+		}
+		else
+		{
+			distinctCol = false;
+		}
+		
+		// Perform culling
+		if(distinctRow)
+		{
+			cout << "Culling symbol " << convertToPrintSymbol(i) << " at row " << row << " from region " << startX << "," << startY << endl;
+			for(int z = 0; z < startY; z++)
+			{
+				board[row][z].strikeSymbol(i);
+			}
+			for(int z = endY; z < N; z++)
+			{
+				board[row][z].strikeSymbol(i);
+			}
+		}
+		if(distinctCol)
+		{
+			cout << "Culling symbol " << convertToPrintSymbol(i) << " at col " << col << " from region " << startX << "," << startY << endl;
+			for(int z = 0; z < startX; z++)
+			{
+				board[z][col].strikeSymbol(i);
+			}
+			for(int z = endX; z < N; z++)
+			{
+				board[z][col].strikeSymbol(i);
+			}
+		}
+		
+	}	
 }
 
 // Solve Board //
