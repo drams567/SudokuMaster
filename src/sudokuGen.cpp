@@ -84,7 +84,6 @@ string SGen::genBoard(const int numGiven)
 				{
 					goodMove = false;
 				}
-				randSpace->strikeSymbol(randMove);
 			}
 			
 			// Check if move will put local region into bad state
@@ -97,6 +96,12 @@ string SGen::genBoard(const int numGiven)
 				goodMove = false;
 			}
 			randSpace->symbol = saveSymbol; // return space to original state
+			
+			if(goodMove == false)
+			{
+				randSpace->strikeSymbol(randMove);
+				cullReserved(regX, regY);
+			}
 			
 		} while(goodMove == false);
 		
@@ -176,11 +181,15 @@ void SGen::test(const int numGiven)
 			{
 				cout << "bad region state avoided" << endl;
 				goodMove = false;
+				randSpace->strikeSymbol(randMove);
 			}
 			randSpace->symbol = saveSymbol; // return space to original state
 			
 			if(goodMove == false)
 			{
+				randSpace->strikeSymbol(randMove);
+				cullReserved(regX, regY);
+				
 				cout << endl << "move " << convertToPrintSymbol(randMove) << " failed" << endl;
 				dumpBoard();
 				cout << endl;

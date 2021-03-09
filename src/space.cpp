@@ -65,14 +65,16 @@ void Space::dump()
 }
 
 // Methods //
-void Space::strikeSymbol(int badSymbol)
+bool Space::strikeSymbol(int badSymbol)
 {
 	// Cull candidate symbol
 	if(vmap[badSymbol] == true)
 	{
 		vmap[badSymbol] = false;
 		numv--;
+		return true;
 	}
+	return false;
 }
 
 void Space::getRegion(int &startX, int &startY)

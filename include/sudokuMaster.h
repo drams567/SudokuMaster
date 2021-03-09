@@ -28,6 +28,10 @@ protected:
 	Guess guessList[NUM_SPACES];	// Stack of guess moves currently taken
 	int numGuess;					// Number of guess moves currently taken
 	
+	int statNumBadGuess;			// Number of guesses taken that were corrected
+	int statNumGuess;				// Number of guesses taken
+	int statNumMoves;				// Number of moves taken during solving (including unecessarily taken moves)
+	
 public:
 	// Construct and Destruct //
 	SMaster();
@@ -63,6 +67,7 @@ public:
 	void dumpBoard();
 	void dumpSpaces();
 	void dumpRemain();
+	void dumpStats();
 };
 
 #endif

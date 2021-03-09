@@ -36,7 +36,6 @@ int main(const int argc, const char* argv[])
 	}
 
 	
-	/*
 	SMaster SM(boardString);
 	SM.dumpBoard();
 	cout << endl;
@@ -50,7 +49,8 @@ int main(const int argc, const char* argv[])
 	SChecker SC(boardString);
 	bool ret = SC.check();
 	SC.dumpResults();
-	*/
+	
+	SM.dumpStats();
 	
 	/*
 	SMaster SM(boardString);
@@ -67,10 +67,11 @@ int main(const int argc, const char* argv[])
 	*/
 	
 	
+	/*
 	unsigned int testSeed = 12344321;
 	SGen Generator(testSeed);
 	Generator.test(50);
-	
+	*/
 	
 	/*
 	for(int i = 0; i < 1; i++)

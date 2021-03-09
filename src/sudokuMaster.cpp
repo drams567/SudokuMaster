@@ -10,6 +10,11 @@ SMaster::SMaster() {}
 
 SMaster::SMaster(string boardString)
 {	
+	// Initialize stats
+	statNumGuess = 0;
+	statNumBadGuess = 0;
+	statNumMoves = 0;
+
 	// Initialize members
 	for(int i = 0; i < NUM_SPACES; i++)
 		remainList[i] = NULL;
@@ -170,6 +175,12 @@ void SMaster::dumpRemain()
 	}
 }
 
+void SMaster::dumpStats()
+{
+	cout << statNumGuess << " guesses (" << (statNumGuess-statNumBadGuess) << " good, " << statNumBadGuess << " bad)" << endl;
+	cout << statNumMoves << " moves made" << endl;
+}
+
 // Helpers //
 int SMaster::getBestSpaceIndex()
 {
@@ -287,6 +298,8 @@ void SMaster::makeGuess()
 		goodGuess = true;
 		int bestSpaceIndex = getBestSpaceIndex();
 		makeMove(remainList[bestSpaceIndex], true);
+		statNumMoves++;
+		statNumGuess++;
 		vector<Space*> cList = getCousins(remainList[bestSpaceIndex]);
 		for(int i = 0; i < (int)cList.size(); i++)
 		{
@@ -302,6 +315,7 @@ void SMaster::makeGuess()
 			Guess badGuess = popGuess();
 			restoreFromGuess(badGuess);
 			badGuess.guessSpace->strikeSymbol(badGuess.guessSymbol);
+			statNumBadGuess++;
 		}
 		else
 		{
@@ -446,16 +460,23 @@ void SMaster::cullReserved(int startX, int startY)
 		}
 		
 		// Perform culling
+		vector<Space*> callList;
 		if(distinctRow)
 		{
 			cout << "Culling symbol " << convertToPrintSymbol(i) << " at row " << row << " from region " << startX << "," << startY << endl;
 			for(int z = 0; z < startY; z++)
 			{
-				board[row][z].strikeSymbol(i);
+				if(board[row][z].strikeSymbol(i))
+				{
+					callList.push_back(&board[row][z]);
+				}
 			}
 			for(int z = endY; z < N; z++)
 			{
-				board[row][z].strikeSymbol(i);
+				if(board[row][z].strikeSymbol(i))
+				{
+					callList.push_back(&board[row][z]);
+				}
 			}
 		}
 		if(distinctCol)
@@ -463,14 +484,26 @@ void SMaster::cullReserved(int startX, int startY)
 			cout << "Culling symbol " << convertToPrintSymbol(i) << " at col " << col << " from region " << startX << "," << startY << endl;
 			for(int z = 0; z < startX; z++)
 			{
-				board[z][col].strikeSymbol(i);
+				if(board[z][col].strikeSymbol(i))
+				{
+					callList.push_back(&board[z][col]);
+				}
 			}
 			for(int z = endX; z < N; z++)
 			{
-				board[z][col].strikeSymbol(i);
+				if(board[z][col].strikeSymbol(i))
+				{
+					callList.push_back(&board[z][col]);
+				}
 			}
 		}
 		
+		int regX, regY;
+		for(int z = 0; z < (int)callList.size(); z++)
+		{
+			callList.at(z)->getRegion(regX, regY);
+			cullReserved(regX, regY);
+		}
 	}	
 }
 
@@ -488,6 +521,7 @@ void SMaster::solve()
 			if(remainList[i]->numv == 1)
 			{
 				makeMove(remainList[i], false);
+				statNumMoves++;
 				removeRemain(i);
 				stuckFlag = false;
 			}
@@ -498,6 +532,7 @@ void SMaster::solve()
 				{
 					Guess badGuess = popGuess();
 					restoreFromGuess(badGuess);
+					statNumBadGuess++;
 					badGuess.guessSpace->strikeSymbol(badGuess.guessSymbol);
 				}
 			}

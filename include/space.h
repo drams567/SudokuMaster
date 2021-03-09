@@ -28,7 +28,7 @@ public:
 	void dump();
 
 	// Methods //
-	void strikeSymbol(int badSymbol);
+	bool strikeSymbol(int badSymbol);
 	void getRegion(int &startX, int &startY);
 };
 
