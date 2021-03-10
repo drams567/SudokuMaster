@@ -36,6 +36,7 @@ int main(const int argc, const char* argv[])
 	}
 
 	
+	/*
 	SMaster SM(boardString);
 	SM.dumpBoard();
 	cout << endl;
@@ -51,12 +52,13 @@ int main(const int argc, const char* argv[])
 	SC.dumpResults();
 	
 	SM.dumpStats();
-	
+	*/
+
 	/*
 	SMaster SM(boardString);
 	SM.dumpBoard();
 	cout << endl;
-	if(SM.checkRegionState(0,0))
+	if(SM.checkRegionState(6,6))
 	{
 		cout << "Region good" << endl;
 	}
@@ -65,14 +67,12 @@ int main(const int argc, const char* argv[])
 		cout << "Region bad" << endl;
 	}
 	*/
-	
-	
-	/*
+
+
 	unsigned int testSeed = 12344321;
 	SGen Generator(testSeed);
 	Generator.test(50);
-	*/
-	
+
 	/*
 	for(int i = 0; i < 1; i++)
 	{

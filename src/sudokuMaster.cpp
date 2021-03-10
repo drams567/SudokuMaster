@@ -463,7 +463,6 @@ void SMaster::cullReserved(int startX, int startY)
 		vector<Space*> callList;
 		if(distinctRow)
 		{
-			cout << "Culling symbol " << convertToPrintSymbol(i) << " at row " << row << " from region " << startX << "," << startY << endl;
 			for(int z = 0; z < startY; z++)
 			{
 				if(board[row][z].strikeSymbol(i))
@@ -481,7 +480,6 @@ void SMaster::cullReserved(int startX, int startY)
 		}
 		if(distinctCol)
 		{
-			cout << "Culling symbol " << convertToPrintSymbol(i) << " at col " << col << " from region " << startX << "," << startY << endl;
 			for(int z = 0; z < startX; z++)
 			{
 				if(board[z][col].strikeSymbol(i))
