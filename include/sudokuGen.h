@@ -24,6 +24,9 @@ public:
 	string genBoard();
 	string genBoard(const int numGiven);
 	int getRandMove(Space* space);
+	void makeRandGuess();
+	int getRandBestSpaceIndex();
+	void makeRandMove();
 	
 	void test(const int numGiven);
 };

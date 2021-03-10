@@ -71,16 +71,14 @@ int main(const int argc, const char* argv[])
 
 	unsigned int testSeed = 12344321;
 	SGen Generator(testSeed);
-	Generator.test(50);
+	//Generator.test(50);
 
-	/*
-	for(int i = 0; i < 1; i++)
+	for(int i = 0; i < 10; i++)
 	{
 		cout << "Board " << (i+1) << ":" << endl;
 		printBoard(Generator.genBoard(50));
 		cout << endl;
 	}
-	*/
 	
 	return 0;
 }

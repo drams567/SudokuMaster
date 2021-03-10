@@ -31,6 +31,7 @@ void SGen::init()
 		}
 	}
 	numRemain = NUM_SPACES;
+	numGuess = 0;
 }
 
 int SGen::getRandMove(Space* space)
@@ -57,127 +58,128 @@ string SGen::genBoard()
 	return genBoard(randNumGiven);
 }
 
+int SGen::getRandBestSpaceIndex()
+{
+	int bestNumV = N + 1; // vnum has a max value of N
+	Space* currSpace = NULL;
+	for(int i = 0; i < numRemain; i++)
+	{
+		currSpace = remainList[i];
+		if(currSpace->numv < bestNumV)
+		{
+			bestNumV = currSpace->numv;
+		}
+	}
+
+	vector<int> bestSpaces;
+	for(int i = 0; i < numRemain; i++)
+	{
+		if(remainList[i]->numv == bestNumV)
+		{
+			bestSpaces.push_back(i);
+		}
+	}
+	
+	int z = rand() % (int)bestSpaces.size();
+	return bestSpaces[z];
+}
+
+void SGen::makeRandGuess()
+{
+	bool goodGuess = false;
+	while(goodGuess == false) 
+	{
+		goodGuess = true;
+		int randomBestSpaceIndex = getRandBestSpaceIndex();
+		Space* randSpace = remainList[randomBestSpaceIndex];
+		int randMove = getRandMove(randSpace);
+
+		// save guess
+		Guess guess;
+		guess.guessSpace = randSpace;
+		guess.guessSymbol = randMove;
+		for(int i = 0; i < N; i++)
+		{
+			for(int k = 0; k < N; k++)
+			{
+				guess.boardState[i][k] = board[i][k];
+			}
+		}
+		for(int i = 0; i < numRemain; i++)
+		{
+			guess.remainListState[i] = remainList[i];
+			guess.numRemainState = numRemain;
+		}
+		pushGuess(guess);
+
+		// make move
+		randSpace->symbol = randMove;
+
+		// update and check cousins
+		vector<Space*> cList = getCousins(remainList[randomBestSpaceIndex]);
+		for(int i = 0; i < (int)cList.size(); i++)
+		{
+			Space* currSpace = cList.at(i);
+			currSpace->strikeSymbol(randMove);
+			if(currSpace->symbol == EMPTY_FLAG && currSpace->numv == 0)
+			{
+				goodGuess = false;
+			}
+		}
+		
+		if(goodGuess == false)
+		{
+			Guess badGuess = popGuess();
+			restoreFromGuess(badGuess);
+			badGuess.guessSpace->strikeSymbol(badGuess.guessSymbol);
+			statNumBadGuess++;
+		}
+		else
+		{
+			removeRemain(randomBestSpaceIndex);
+		}
+	}
+}
+
 string SGen::genBoard(const int numGiven)
 {
 	init();
 
-	Space saveBoard[N][N];
-	int randIndex;
-	int randMove;
-	Space* randSpace;
-	while(numRemain > (NUM_SPACES - numGiven))
+	bool stuckFlag;
+	while(numRemain > 0)
 	{
-		bool goodMove;
-		int regX, regY;
-
-		randIndex = rand() % numRemain;
-		randSpace = remainList[randIndex];
-		randSpace->getRegion(regX, regY);
-		vector<Space*> cList = getCousins(randSpace);
-		do
+		stuckFlag = true;
+		int i = 0;
+		while(i < numRemain)
 		{
-			goodMove = true;
-			randMove = getRandMove(randSpace);
-
-			// Save board state
-			for(int i = 0; i < N; i++)
+			if(remainList[i]->numv == 1)
 			{
-				for(int k = 0; k < N; k++)
+				makeMove(remainList[i], false);
+				statNumMoves++;
+				removeRemain(i);
+				stuckFlag = false;
+			}
+			else if(remainList[i]->numv == 0)
+			{
+				Space* badSpace = remainList[i];
+				while(badSpace->numv == 0)
 				{
-					saveBoard[i][k] = board[i][k];
+					Guess badGuess = popGuess();
+					restoreFromGuess(badGuess);
+					statNumBadGuess++;
+					badGuess.guessSpace->strikeSymbol(badGuess.guessSymbol);
 				}
 			}
-
-			// Make move
-			randSpace->symbol = randMove;
-
-			// Check if move will move any spaces candidate list to zero
-			for(vector<Space*>::iterator spaceIt = cList.begin(); spaceIt != cList.end(); spaceIt++)
+			else
 			{
-				Space* currSpace = *spaceIt;
-				currSpace->strikeSymbol(randMove);
-				if(currSpace->symbol == EMPTY_FLAG && currSpace->numv == 0)
-				{
-					goodMove = false;
-				}
-			}
-			
-			// Check if move will put local region into bad state
-			if(goodMove == true)
-			{
-				int saveSymbol;
-				saveSymbol = randSpace->symbol;
-				randSpace->symbol = randMove; // simulate move
-				if(checkRegionState(regX, regY) == false)
-				{
-					goodMove = false;
-				}
-				randSpace->symbol = saveSymbol; // return space to original state
-			}
-
-			// Perform culling and check region states
-			if(goodMove == true)
-			{
-				for(int i = 0; i < REGION_DIM; i++)
-				{
-					for(int k = 0; k < REGION_DIM; k++)
-					{	
-						int startX = i * REGION_DIM;
-						int startY = k * REGION_DIM;
-						cullReserved(startX, startY);
-					}
-				}
-
-				for(int i = 0; i < REGION_DIM; i++)
-				{
-					for(int k = 0; k < REGION_DIM; k++)
-					{
-						int startX = i * REGION_DIM;
-						int startY = k * REGION_DIM;
-						bool state = checkRegionState(startX, startY);
-						if(state == false)
-						{
-							goodMove = false;
-						}
-					}
-				}
-			}
-
-			if(goodMove == false)
-			{
-				// restore board state
-				for(int i = 0; i < N; i++)
-				{
-					for(int k = 0; k < N; k++)
-					{
-						board[i][k] = saveBoard[i][k];
-					}
-				}
-				randSpace->strikeSymbol(randMove);
-				cullReserved(regX, regY);
-			}
-			
-		} while(goodMove == false);
-		
-		randSpace->symbol = randMove;
-		removeRemain(randIndex);
-		for(vector<Space*>::iterator spaceIt = cList.begin(); spaceIt != cList.end(); spaceIt++)
-		{
-			Space* currSpace = *spaceIt;
-			currSpace->strikeSymbol(randMove);
-		}
-		
-		// Extra culling
-		for(int i = 0; i < REGION_FACTOR; i++)
-		{
-			for(int k = 0; k < REGION_FACTOR; k++)
-			{
-				int x = i * REGION_DIM;
-				int y = k * REGION_DIM;
-				cullReserved(x, y);
+				i++;
 			}
 		}
 		
+		if(stuckFlag == true)
+		{
+			makeRandGuess();
+		}
 	}
 	
 	return getBoard();
@@ -187,140 +189,45 @@ void SGen::test(const int numGiven)
 {
 	init();
 
-	Space saveBoard[N][N];
-	int randIndex;
-	int randMove;
-	Space* randSpace;
-	while(numRemain > (NUM_SPACES - numGiven))
+	bool stuckFlag;
+	while(numRemain > 0)
 	{
-		bool goodMove;
-		int regX, regY;
-
-		randIndex = rand() % numRemain;
-		randSpace = remainList[randIndex];
-		randSpace->getRegion(regX, regY);
-		vector<Space*> cList = getCousins(randSpace);
-	
-		dumpBoard();
-		cout << endl;
-		cout << endl << "Space to choose from: ";
-		randSpace->dump();
-		cout << endl;
-
-		do
+		stuckFlag = true;
+		int i = 0;
+		while(i < numRemain)
 		{
-			goodMove = true;
-			randMove = getRandMove(randSpace);
-
-			cout << "trying move " << convertToPrintSymbol(randMove) << endl;
-
-			// Save board state
-			for(int i = 0; i < N; i++)
+			if(remainList[i]->numv == 1)
 			{
-				for(int k = 0; k < N; k++)
+				makeMove(remainList[i], false);
+				statNumMoves++;
+				removeRemain(i);
+				stuckFlag = false;
+			}
+			else if(remainList[i]->numv == 0)
+			{
+				Space* badSpace = remainList[i];
+				while(badSpace->numv == 0)
 				{
-					saveBoard[i][k] = board[i][k];
+					Guess badGuess = popGuess();
+					restoreFromGuess(badGuess);
+					statNumBadGuess++;
+					badGuess.guessSpace->strikeSymbol(badGuess.guessSymbol);
 				}
 			}
-
-			// Make move
-			randSpace->symbol = randMove;
-
-			// Check if move will move any spaces candidate list to zero
-			for(vector<Space*>::iterator spaceIt = cList.begin(); spaceIt != cList.end(); spaceIt++)
+			else
 			{
-				Space* currSpace = *spaceIt;
-				currSpace->strikeSymbol(randMove);
-				if(currSpace->symbol == EMPTY_FLAG && currSpace->numv == 0)
-				{
-					goodMove = false;
-				}
+				i++;
 			}
-			
-			// Check if move will put local region into bad state
-			if(goodMove == true)
-			{
-				if(checkRegionState(regX, regY) == false)
-				{
-					goodMove = false;
-					cout << "bad region state avoided" << endl;
-				}
-			}
-
-			// Perform culling and check region states
-			if(goodMove == true)
-			{
-				for(int i = 0; i < REGION_DIM; i++)
-				{
-					for(int k = 0; k < REGION_DIM; k++)
-					{	
-						int startX = i * REGION_DIM;
-						int startY = k * REGION_DIM;
-						cullReserved(startX, startY);
-					}
-				}
-				for(int i = 0; i < REGION_DIM; i++)
-				{
-					for(int k = 0; k < REGION_DIM; k++)
-					{
-						int startX = i * REGION_DIM;
-						int startY = k * REGION_DIM;
-						bool state = checkRegionState(startX, startY);
-						if(state == false)
-						{
-							goodMove = false;
-							cout << "After extra culling, bad region state avoided for " << startX << "," << startY << endl;
-						}
-					}
-				}
-			}
-
-			if(goodMove == true)
-			{
-				for(int i = 0; i < N; i++)
-				{
-					for(int k = 0; k < N; k++)
-					{
-						if(board[i][k].symbol == EMPTY_FLAG && board[i][k].numv == 0)
-						{
-							goodMove = false;
-							cout << "Bad space ";
-							board[i][k].dump();
-							cout << endl;
-						}
-					}
-				}
-			}
-
-			if(goodMove == false)
-			{
-				dumpRemain();
-				cout << endl;
-
-				// restore board state
-				for(int i = 0; i < N; i++)
-				{
-					for(int k = 0; k < N; k++)
-					{
-						board[i][k] = saveBoard[i][k];
-					}
-				}
-				randSpace->strikeSymbol(randMove);
-				cullReserved(regX, regY);
-
-				cout << endl << "move " << convertToPrintSymbol(randMove) << " failed" << endl;
-				cout << endl;
-				getchar();
-			}
-			dumpRemain();
-			cout << endl;
-			getchar();
-			
-		} while(goodMove == false);
+		}
 		
-		removeRemain(randIndex);
-		
+		if(stuckFlag == true)
+		{
+			makeRandGuess();
+		}
 	}
 	
+	dumpBoard();
+	cout << endl;
+
 }
 
