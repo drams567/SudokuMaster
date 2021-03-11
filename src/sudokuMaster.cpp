@@ -297,10 +297,20 @@ void SMaster::makeGuess()
 	{
 		goodGuess = true;
 		int bestSpaceIndex = getBestSpaceIndex();
-		makeMove(remainList[bestSpaceIndex], true);
+      Space* bestSpace = remainList[bestSpaceIndex];
+      
+      while(bestSpace->numv == 0)
+      {
+         Guess badGuess = popGuess();
+			restoreFromGuess(badGuess);
+			badGuess.guessSpace->strikeSymbol(badGuess.guessSymbol);
+			statNumBadGuess++;
+      }
+      
+		makeMove(bestSpace, true);
 		statNumMoves++;
 		statNumGuess++;
-		vector<Space*> cList = getCousins(remainList[bestSpaceIndex]);
+		vector<Space*> cList = getCousins(bestSpace);
 		for(int i = 0; i < (int)cList.size(); i++)
 		{
 			Space* currSpace = cList.at(i);
@@ -511,13 +521,12 @@ void SMaster::solve()
 	bool stuckFlag;
 	while(numRemain > 0)
 	{
-		
 		stuckFlag = true;
 		int i = 0;
 		while(i < numRemain)
 		{
 			if(remainList[i]->numv == 1)
-			{
+	      {
 				makeMove(remainList[i], false);
 				statNumMoves++;
 				removeRemain(i);

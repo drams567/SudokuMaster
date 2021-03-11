@@ -44,15 +44,16 @@ int main(const int argc, const char* argv[])
 	cout << endl;
 	
 	//boardString = SM.getBoard();
-	
+	*/
+   
+   /*
 	cout << "TESTING SChecker" << endl;
 	SChecker SC;
 	bool ret = SC.check(boardString);
 	SC.dumpResults();
 
 	//SM.dumpStats();
-
-	*/
+   */
 
 	/*
 	SMaster SM(boardString);
@@ -68,28 +69,29 @@ int main(const int argc, const char* argv[])
 	}
 	*/
 
-
 	unsigned int testSeed = 12344321;
 	SGen Generator(testSeed);
 	//Generator.test(50);
 	SChecker Checker;
 	bool win = true;
 	int i = 0;
-	while(win == true && i < 10000)
+   int numRuns = 100000;
+	while(win == true && i <= numRuns)
 	{
 		win = Checker.check(Generator.genBoard(50));
-		if(win == false)
+		win = true;
+      if(win == false)
 		{
 			cout << "Failure" << endl;
 		}
-
-		if(i % 100 == 0)
-		{
-			cout << i << " complete" << endl;
-		}
+      
+      if(i % (numRuns/10) == 0)
+      {
+         cout << i << " complete" << endl;
+      }
 
 		i++;
 	}
-	
+   
 	return 0;
 }

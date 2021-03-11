@@ -87,11 +87,19 @@ int SGen::getRandBestSpaceIndex()
 void SGen::makeRandGuess()
 {
 	bool goodGuess = false;
-	while(goodGuess == false) 
+   while(goodGuess == false) 
 	{
 		goodGuess = true;
-		int randomBestSpaceIndex = getRandBestSpaceIndex();
-		Space* randSpace = remainList[randomBestSpaceIndex];
+      int randomBestSpaceIndex = getRandBestSpaceIndex();
+	   Space* randSpace = remainList[randomBestSpaceIndex];
+      while(randSpace->numv == 0)
+      {
+         Guess badGuess = popGuess();
+			restoreFromGuess(badGuess);
+			badGuess.guessSpace->strikeSymbol(badGuess.guessSymbol);
+			statNumBadGuess++;
+      }
+      
 		int randMove = getRandMove(randSpace);
 
 		// save guess
@@ -155,7 +163,6 @@ string SGen::genBoard(const int numGiven)
 			if(remainList[i]->numv == 1)
 			{
 				makeMove(remainList[i], false);
-				statNumMoves++;
 				removeRemain(i);
 				stuckFlag = false;
 			}
@@ -166,7 +173,6 @@ string SGen::genBoard(const int numGiven)
 				{
 					Guess badGuess = popGuess();
 					restoreFromGuess(badGuess);
-					statNumBadGuess++;
 					badGuess.guessSpace->strikeSymbol(badGuess.guessSymbol);
 				}
 			}
@@ -199,7 +205,6 @@ void SGen::test(const int numGiven)
 			if(remainList[i]->numv == 1)
 			{
 				makeMove(remainList[i], false);
-				statNumMoves++;
 				removeRemain(i);
 				stuckFlag = false;
 			}
@@ -210,7 +215,6 @@ void SGen::test(const int numGiven)
 				{
 					Guess badGuess = popGuess();
 					restoreFromGuess(badGuess);
-					statNumBadGuess++;
 					badGuess.guessSpace->strikeSymbol(badGuess.guessSymbol);
 				}
 			}
@@ -222,12 +226,15 @@ void SGen::test(const int numGiven)
 		
 		if(stuckFlag == true)
 		{
+         cout << "Stuck - Attempting Guess" << endl;
 			makeRandGuess();
 		}
+      
+      dumpBoard();
+      cout << endl;
+      getchar();
+      
 	}
-	
-	dumpBoard();
-	cout << endl;
-
+   
 }
 
