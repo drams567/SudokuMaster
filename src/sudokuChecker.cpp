@@ -2,7 +2,20 @@
 
 using namespace std;
 
+SChecker::SChecker()
+{
+	string boardString(NUM_SPACES,EMPTY_FLAG);
+	init(boardString);
+}
+
 SChecker::SChecker(string boardString)
+{
+	init(boardString);
+}
+
+SChecker::~SChecker(){}
+
+void SChecker::init(string boardString)
 {
 	numViolate = 0;
 	numMissing = 0;
@@ -16,8 +29,6 @@ SChecker::SChecker(string boardString)
 		}
 	}
 }
-
-SChecker::~SChecker(){}
 
 bool SChecker::check()
 {
@@ -106,6 +117,12 @@ bool SChecker::check()
 	}
 
 	return win;
+}
+
+bool SChecker::check(string boardString)
+{
+	init(boardString);
+	return check();
 }
 
 void SChecker::dumpResults()

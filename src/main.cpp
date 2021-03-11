@@ -35,7 +35,6 @@ int main(const int argc, const char* argv[])
 		exit(0);
 	}
 
-	
 	/*
 	SMaster SM(boardString);
 	SM.dumpBoard();
@@ -44,14 +43,15 @@ int main(const int argc, const char* argv[])
 	SM.dumpBoard();
 	cout << endl;
 	
-	boardString = SM.getBoard();
+	//boardString = SM.getBoard();
 	
 	cout << "TESTING SChecker" << endl;
-	SChecker SC(boardString);
-	bool ret = SC.check();
+	SChecker SC;
+	bool ret = SC.check(boardString);
 	SC.dumpResults();
-	
-	SM.dumpStats();
+
+	//SM.dumpStats();
+
 	*/
 
 	/*
@@ -72,12 +72,23 @@ int main(const int argc, const char* argv[])
 	unsigned int testSeed = 12344321;
 	SGen Generator(testSeed);
 	//Generator.test(50);
-
-	for(int i = 0; i < 10; i++)
+	SChecker Checker;
+	bool win = true;
+	int i = 0;
+	while(win == true && i < 10000)
 	{
-		cout << "Board " << (i+1) << ":" << endl;
-		printBoard(Generator.genBoard(50));
-		cout << endl;
+		win = Checker.check(Generator.genBoard(50));
+		if(win == false)
+		{
+			cout << "Failure" << endl;
+		}
+
+		if(i % 100 == 0)
+		{
+			cout << i << " complete" << endl;
+		}
+
+		i++;
 	}
 	
 	return 0;

@@ -17,9 +17,12 @@ private:
 	int numMissing;
 	
 public:
+	SChecker();
 	SChecker(string boardString);
 	~SChecker();
 
+	void init(string boardString);
+	bool check(string boardString);
 	bool check();
 	void dumpResults();
 };
