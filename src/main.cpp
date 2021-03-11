@@ -71,19 +71,22 @@ int main(const int argc, const char* argv[])
 
 	unsigned int testSeed = 12344321;
 	SGen Generator(testSeed);
-	//Generator.test(50);
 	SChecker Checker;
-	bool win = true;
+	int result = 1;
 	int i = 0;
    int numRuns = 100000;
-	while(win == true && i <= numRuns)
+   int boardSize = 50;
+   do
 	{
-		win = Checker.check(Generator.genBoard(50));
-		win = true;
-      if(win == false)
+   	result = Checker.check(Generator.genBoard(boardSize));  
+      if(result < 0)
 		{
-			cout << "Failure" << endl;
+			cout << "MAIN: Failure, " << Checker.getNumViolate() << " violations found" << endl;
 		}
+      if(Checker.getNumMissing() != (NUM_SPACES - boardSize))
+      {
+         cout << "MAIN: Error, board is of size " << Checker.getNumMissing() << " when it should be of size " << boardSize << endl;
+      }
       
       if(i % (numRuns/10) == 0)
       {
@@ -91,7 +94,8 @@ int main(const int argc, const char* argv[])
       }
 
 		i++;
-	}
+      
+	} while(result != -1 && i <= numRuns);
    
 	return 0;
 }

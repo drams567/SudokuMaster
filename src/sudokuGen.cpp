@@ -188,6 +188,22 @@ string SGen::genBoard(const int numGiven)
 		}
 	}
 	
+   for(int i = 0; i < N; i++)
+   {
+      for(int k = 0; k < N; k++)
+      {
+         remainList[i*N + k] = &board[i][k];
+      }
+   }
+   numRemain = NUM_SPACES;
+   
+   while(numRemain > numGiven)
+   {
+      int randIndex = rand() % numRemain;
+      remainList[randIndex]->symbol = EMPTY_FLAG;
+      removeRemain(randIndex);
+   }
+      
 	return getBoard();
 }
 

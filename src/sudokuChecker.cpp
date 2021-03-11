@@ -30,7 +30,7 @@ void SChecker::init(string boardString)
 	}
 }
 
-bool SChecker::check()
+int SChecker::check()
 {
 	win = true;
 	
@@ -116,10 +116,20 @@ bool SChecker::check()
 		}
 	}
 
-	return win;
+	// check for violations or incompletion
+   if(numViolate > 0)
+   {
+      return -1;  // violations
+   }
+   if(win == false)
+   {
+      return 0; // incompletion
+   }
+   
+   return 1;   // win
 }
 
-bool SChecker::check(string boardString)
+int SChecker::check(string boardString)
 {
 	init(boardString);
 	return check();
@@ -133,4 +143,14 @@ void SChecker::dumpResults()
 		cout << "Number of Violations = " << numViolate << endl;
 	if(numMissing > 0)
 		cout << "Number of empty spaces = " << numMissing << endl;
+}
+
+int SChecker::getNumViolate()
+{
+   return numViolate;
+}
+
+int SChecker::getNumMissing()
+{
+   return numMissing;
 }

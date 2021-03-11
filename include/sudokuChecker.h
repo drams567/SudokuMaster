@@ -22,9 +22,13 @@ public:
 	~SChecker();
 
 	void init(string boardString);
-	bool check(string boardString);
-	bool check();
+	int check(string boardString);
+	int check();
 	void dumpResults();
+   
+   int getNumViolate();
+   int getNumMissing();
+
 };
 
 #endif
