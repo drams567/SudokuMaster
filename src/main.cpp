@@ -72,21 +72,19 @@ int main(const int argc, const char* argv[])
 	unsigned int testSeed = 12344321;
 	SGen Generator(testSeed);
 	SChecker Checker;
+   SMaster Solver;
 	int result = 1;
 	int i = 0;
-   int numRuns = 100000;
-   int boardSize = 50;
+   int numRuns = 10000;
+   int boardSize = 30;
    do
 	{
-   	result = Checker.check(Generator.genBoard(boardSize));  
+      Solver.solve(Generator.genBoard(boardSize));
+   	result = Checker.check(Solver.getBoard());
       if(result < 0)
 		{
 			cout << "MAIN: Failure, " << Checker.getNumViolate() << " violations found" << endl;
 		}
-      if(Checker.getNumMissing() != (NUM_SPACES - boardSize))
-      {
-         cout << "MAIN: Error, board is of size " << Checker.getNumMissing() << " when it should be of size " << boardSize << endl;
-      }
       
       if(i % (numRuns/10) == 0)
       {

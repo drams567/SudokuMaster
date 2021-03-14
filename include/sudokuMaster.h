@@ -40,8 +40,10 @@ public:
 	
 	// Solve Board //
 	void solve();
+   void solve(string boardString);
 	
 	// Procedures //
+   void init(string boardString);
 	void makeGuess();
 	void makeMove(Space* space, bool isGuess);
 	void restoreFromGuess(Guess badGuess);

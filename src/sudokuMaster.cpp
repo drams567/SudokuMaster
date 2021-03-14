@@ -6,62 +6,15 @@
 using namespace std;
 
 // Constructors //
-SMaster::SMaster() {}
+SMaster::SMaster() 
+{
+   string boardString(NUM_SPACES, EMPTY_FLAG);
+	init(boardString);
+}
 
 SMaster::SMaster(string boardString)
-{	
-	// Initialize stats
-	statNumGuess = 0;
-	statNumBadGuess = 0;
-	statNumMoves = 0;
-
-	// Initialize members
-	for(int i = 0; i < NUM_SPACES; i++)
-		remainList[i] = NULL;
-	numRemain = 0;
-	numGuess = 0;
-
-	// Initialize list of starting spaces (spaces which are given to us)
-	// This list is used to cull potential candidates of surrounding spaces after the board has been initialized
-	Space* givenList[NUM_SPACES];
-	int numGiven = 0;
-	
-	// Initialize board to match board string
-	for(int i = 0; i < N; i++)
-	{
-		for(int k = 0; k < N; k++)
-		{
-			// Initialize current space with position and value
-			int newSymbol = convertToSymbol(boardString[(i*N) + k]);
-			board[i][k].init(i, k, newSymbol);
-			
-			// If space starts empty
-			if(newSymbol == EMPTY_FLAG)
-			{
-				// Add to list of remaining spaces
-				pushRemain(i, k);
-			}
-			else
-			{
-				// Add to list of starting spaces
-				givenList[numGiven] = &board[i][k];
-				numGiven++;
-			}
-		}
-	}
-	
-	// Update candidate lists from starting spaces
-	for(int i = 0; i < numGiven; i++)
-	{
-		// Cull symbol of current starting space from its 'cousin' spaces
-		vector<Space*> cList = getCousins(givenList[i]);
-		int symbol = givenList[i]->symbol;
-		for(vector<Space*>::iterator spaceIt = cList.begin(); spaceIt != cList.end(); spaceIt++)
-		{
-			(*spaceIt)->strikeSymbol(symbol);
-		}
-	}
-	
+{
+   init(boardString);
 }
 
 // Destructor //
@@ -290,6 +243,62 @@ bool SMaster::checkRegionState(int startX, int startY)
 }
 
 // Procedures //
+void SMaster::init(string boardString)
+{
+   // Initialize stats
+	statNumGuess = 0;
+	statNumBadGuess = 0;
+	statNumMoves = 0;
+
+	// Initialize members
+	for(int i = 0; i < NUM_SPACES; i++)
+		remainList[i] = NULL;
+	numRemain = 0;
+	numGuess = 0;
+
+	// Initialize list of starting spaces (spaces which are given to us)
+	// This list is used to cull potential candidates of surrounding spaces after the board has been initialized
+	Space* givenList[NUM_SPACES];
+	int numGiven = 0;
+	
+	// Initialize board to match board string
+	for(int i = 0; i < N; i++)
+	{
+		for(int k = 0; k < N; k++)
+		{
+			// Initialize current space with position and value
+			int newSymbol = convertToSymbol(boardString[(i*N) + k]);
+			board[i][k].init(i, k, newSymbol);
+			
+			// If space starts empty
+			if(newSymbol == EMPTY_FLAG)
+			{
+				// Add to list of remaining spaces
+				pushRemain(i, k);
+			}
+			else
+			{
+				// Add to list of starting spaces
+				givenList[numGiven] = &board[i][k];
+				numGiven++;
+			}
+		}
+	}
+	
+	// Update candidate lists from starting spaces
+	for(int i = 0; i < numGiven; i++)
+	{
+		// Cull symbol of current starting space from its 'cousin' spaces
+		vector<Space*> cList = getCousins(givenList[i]);
+		int symbol = givenList[i]->symbol;
+		for(vector<Space*>::iterator spaceIt = cList.begin(); spaceIt != cList.end(); spaceIt++)
+		{
+			(*spaceIt)->strikeSymbol(symbol);
+		}
+	}
+}
+
+
 void SMaster::makeGuess()
 {	
 	bool goodGuess = false;
@@ -555,4 +564,9 @@ void SMaster::solve()
 		}
 	}
 }
-	
+
+void SMaster::solve(string boardString)
+{
+   init(boardString);
+   solve();
+}
