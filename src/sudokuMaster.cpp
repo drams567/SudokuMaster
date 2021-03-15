@@ -306,39 +306,44 @@ void SMaster::makeGuess()
 	{
 		goodGuess = true;
 		int bestSpaceIndex = getBestSpaceIndex();
-      Space* bestSpace = remainList[bestSpaceIndex];
-      
-      while(bestSpace->numv == 0)
-      {
-         Guess badGuess = popGuess();
-			restoreFromGuess(badGuess);
-			badGuess.guessSpace->strikeSymbol(badGuess.guessSymbol);
-			statNumBadGuess++;
-      }
-      
-		makeMove(bestSpace, true);
-		statNumMoves++;
-		statNumGuess++;
-		vector<Space*> cList = getCousins(bestSpace);
-		for(int i = 0; i < (int)cList.size(); i++)
+		Space* bestSpace = remainList[bestSpaceIndex];
+
+		if (bestSpace->numv == 0)
 		{
-			Space* currSpace = cList.at(i);
-			if(currSpace->symbol == EMPTY_FLAG && currSpace->numv == 0)
+			while (bestSpace->numv == 0)
 			{
-				goodGuess = false;
+				Guess badGuess = popGuess();
+				restoreFromGuess(badGuess);
+				badGuess.guessSpace->strikeSymbol(badGuess.guessSymbol);
+				statNumBadGuess++;
 			}
-		}
-		
-		if(goodGuess == false)
-		{
-			Guess badGuess = popGuess();
-			restoreFromGuess(badGuess);
-			badGuess.guessSpace->strikeSymbol(badGuess.guessSymbol);
-			statNumBadGuess++;
 		}
 		else
 		{
-			removeRemain(bestSpaceIndex);
+			makeMove(bestSpace, true);
+			statNumMoves++;
+			statNumGuess++;
+			vector<Space*> cList = getCousins(bestSpace);
+			for (int i = 0; i < (int)cList.size(); i++)
+			{
+				Space* currSpace = cList.at(i);
+				if (currSpace->symbol == EMPTY_FLAG && currSpace->numv == 0)
+				{
+					goodGuess = false;
+				}
+			}
+
+			if (goodGuess == false)
+			{
+				Guess badGuess = popGuess();
+				restoreFromGuess(badGuess);
+				badGuess.guessSpace->strikeSymbol(badGuess.guessSymbol);
+				statNumBadGuess++;
+			}
+			else
+			{
+				removeRemain(bestSpaceIndex);
+			}
 		}
 	}
 }
