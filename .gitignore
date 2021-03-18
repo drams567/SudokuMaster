@@ -5,3 +5,5 @@ boards/
 *.o
 *~
 *.swp
+*.stackdump
+.vs*
