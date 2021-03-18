@@ -333,7 +333,6 @@ void SMaster::makeGuess()
 				}
 			}
 			
-			/*
 			if(goodGuess == true)
 			{
 				for(int i = 0; i < REGION_DIM; i++)
@@ -350,7 +349,6 @@ void SMaster::makeGuess()
 					}
 				}
 			}
-			*/
 
 			if (goodGuess == false)
 			{
@@ -597,6 +595,7 @@ void SMaster::solve(string boardString)
 
 void SMaster::testSolve()
 {
+	int z = NUM_SPACES;
 	bool stuckFlag;
 	while(numRemain > 0)
 	{
@@ -614,9 +613,6 @@ void SMaster::testSolve()
 			else if(remainList[i]->numv == 0)
 			{
 				Space* badSpace = remainList[i];
-				cout << "Bad space: ";
-				badSpace->dump();
-				cout << endl << "restoring" << endl;
 				while(badSpace->numv == 0)
 				{
 					Guess badGuess = popGuess();
@@ -636,10 +632,10 @@ void SMaster::testSolve()
 			makeGuess();
 		}
 		
-		dumpBoard();
-		cout << endl;
-		dumpRemain();
-		cout << endl;
-		getchar();
+		if(z > numRemain)
+		{
+			z = numRemain;
+			cout << "Lowest remaining so far = " << z << endl;
+		}
 	}
 }
