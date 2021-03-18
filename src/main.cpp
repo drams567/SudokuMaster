@@ -35,49 +35,14 @@ int main(const int argc, const char* argv[])
 		exit(0);
 	}
 
-	/*
-	SMaster SM(boardString);
-	SM.dumpBoard();
-	cout << endl;
-	SM.solve();
-	SM.dumpBoard();
-	cout << endl;
-	
-	//boardString = SM.getBoard();
-	*/
-   
-	/*
-	cout << "TESTING SChecker" << endl;
-	SChecker SC;
-	bool ret = SC.check(boardString);
-	SC.dumpResults();
-
-	//SM.dumpStats();
-	*/
-
-	/*
-	SMaster SM(boardString);
-	SM.dumpBoard();
-	cout << endl;
-	if(SM.checkRegionState(6,6))
-	{
-		cout << "Region good" << endl;
-	}
-	else
-	{
-		cout << "Region bad" << endl;
-	}
-	*/
-
 	unsigned int testSeed = 12344321;
 	SGen Generator(testSeed);
 	SChecker Checker;
 	SMaster Solver;
 	int result = 1;
 	int i = 0;
-	int numRuns = 4923;
+	int numRuns = 10000;
 	int boardSize = 10;
-   /*
 	do
 	{
 		Solver.solve(Generator.genBoard(boardSize));
@@ -87,7 +52,7 @@ int main(const int argc, const char* argv[])
 			cout << "MAIN: Failure, " << Checker.getNumViolate() << " violations found" << endl;
 		}
       
-		if(i > 4800)
+		if(i % (numRuns/10) == 0)
 		{
 			cout << i << " complete" << endl;
 		}
@@ -95,14 +60,6 @@ int main(const int argc, const char* argv[])
 		i++;
       
 	} while(result != -1 && i <= numRuns);
-   */
-   
-	printBoard(boardString);
-	SMaster tester(boardString);
-	tester.testSolve();
-
-	cout << endl << "Enter any key to exit..." << endl;
-	getchar();
-
+	
 	return 0;
 }
