@@ -332,6 +332,25 @@ void SMaster::makeGuess()
 					goodGuess = false;
 				}
 			}
+			
+			/*
+			if(goodGuess == true)
+			{
+				for(int i = 0; i < REGION_DIM; i++)
+				{
+					for(int k = 0; k < REGION_DIM; k++)
+					{
+						int regX, regY;
+						regX = i * REGION_DIM;
+						regY = k * REGION_DIM;
+						if(checkRegionState(regX, regY) == false)
+						{
+							goodGuess = false;
+						}
+					}
+				}
+			}
+			*/
 
 			if (goodGuess == false)
 			{
@@ -574,4 +593,53 @@ void SMaster::solve(string boardString)
 {
    init(boardString);
    solve();
+}
+
+void SMaster::testSolve()
+{
+	bool stuckFlag;
+	while(numRemain > 0)
+	{
+		stuckFlag = true;
+		int i = 0;
+		while(i < numRemain)
+		{
+			if(remainList[i]->numv == 1)
+	      {
+				makeMove(remainList[i], false);
+				statNumMoves++;
+				removeRemain(i);
+				stuckFlag = false;
+			}
+			else if(remainList[i]->numv == 0)
+			{
+				Space* badSpace = remainList[i];
+				cout << "Bad space: ";
+				badSpace->dump();
+				cout << endl << "restoring" << endl;
+				while(badSpace->numv == 0)
+				{
+					Guess badGuess = popGuess();
+					restoreFromGuess(badGuess);
+					statNumBadGuess++;
+					badGuess.guessSpace->strikeSymbol(badGuess.guessSymbol);
+				}
+			}
+			else
+			{
+				i++;
+			}
+		}
+		
+		if(stuckFlag == true)
+		{
+			makeGuess();
+		}
+		
+		dumpBoard();
+		cout << endl;
+		dumpRemain();
+		cout << endl;
+		getchar();
+	}
 }

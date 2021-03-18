@@ -46,14 +46,14 @@ int main(const int argc, const char* argv[])
 	//boardString = SM.getBoard();
 	*/
    
-   /*
+	/*
 	cout << "TESTING SChecker" << endl;
 	SChecker SC;
 	bool ret = SC.check(boardString);
 	SC.dumpResults();
 
 	//SM.dumpStats();
-   */
+	*/
 
 	/*
 	SMaster SM(boardString);
@@ -72,28 +72,37 @@ int main(const int argc, const char* argv[])
 	unsigned int testSeed = 12344321;
 	SGen Generator(testSeed);
 	SChecker Checker;
-   SMaster Solver;
+	SMaster Solver;
 	int result = 1;
 	int i = 0;
-   int numRuns = 10000;
-   int boardSize = 30;
-   do
+	int numRuns = 4923;
+	int boardSize = 10;
+   /*
+	do
 	{
-      Solver.solve(Generator.genBoard(boardSize));
-   	result = Checker.check(Solver.getBoard());
-      if(result < 0)
+		Solver.solve(Generator.genBoard(boardSize));
+		result = Checker.check(Solver.getBoard());
+		if(result < 0)
 		{
 			cout << "MAIN: Failure, " << Checker.getNumViolate() << " violations found" << endl;
 		}
       
-      if(i % (numRuns/10) == 0)
-      {
-         cout << i << " complete" << endl;
-      }
+		if(i > 4800)
+		{
+			cout << i << " complete" << endl;
+		}
 
 		i++;
       
 	} while(result != -1 && i <= numRuns);
+   */
    
+	printBoard(boardString);
+	SMaster tester(boardString);
+	tester.testSolve();
+
+	cout << endl << "Enter any key to exit..." << endl;
+	getchar();
+
 	return 0;
 }
