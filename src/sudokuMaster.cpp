@@ -317,6 +317,7 @@ void SMaster::makeGuess()
 				badGuess.guessSpace->strikeSymbol(badGuess.guessSymbol);
 				statNumBadGuess++;
 			}
+			goodGuess = false;
 		}
 		else
 		{

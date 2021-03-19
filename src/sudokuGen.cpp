@@ -87,64 +87,71 @@ int SGen::getRandBestSpaceIndex()
 void SGen::makeRandGuess()
 {
 	bool goodGuess = false;
-   while(goodGuess == false) 
+	while(goodGuess == false) 
 	{
 		goodGuess = true;
-      int randomBestSpaceIndex = getRandBestSpaceIndex();
-	   Space* randSpace = remainList[randomBestSpaceIndex];
-      while(randSpace->numv == 0)
-      {
-         Guess badGuess = popGuess();
-			restoreFromGuess(badGuess);
-			badGuess.guessSpace->strikeSymbol(badGuess.guessSymbol);
-			statNumBadGuess++;
-      }
-      
-		int randMove = getRandMove(randSpace);
+		int randomBestSpaceIndex = getRandBestSpaceIndex();
+		Space* randSpace = remainList[randomBestSpaceIndex];
 
-		// save guess
-		Guess guess;
-		guess.guessSpace = randSpace;
-		guess.guessSymbol = randMove;
-		for(int i = 0; i < N; i++)
+		if(randSpace->numv == 0)
 		{
-			for(int k = 0; k < N; k++)
+			while (randSpace->numv == 0)
 			{
-				guess.boardState[i][k] = board[i][k];
+				Guess badGuess = popGuess();
+				restoreFromGuess(badGuess);
+				badGuess.guessSpace->strikeSymbol(badGuess.guessSymbol);
+				statNumBadGuess++;
 			}
-		}
-		for(int i = 0; i < numRemain; i++)
-		{
-			guess.remainListState[i] = remainList[i];
-			guess.numRemainState = numRemain;
-		}
-		pushGuess(guess);
-
-		// make move
-		randSpace->symbol = randMove;
-
-		// update and check cousins
-		vector<Space*> cList = getCousins(remainList[randomBestSpaceIndex]);
-		for(int i = 0; i < (int)cList.size(); i++)
-		{
-			Space* currSpace = cList.at(i);
-			currSpace->strikeSymbol(randMove);
-			if(currSpace->symbol == EMPTY_FLAG && currSpace->numv == 0)
-			{
-				goodGuess = false;
-			}
-		}
-		
-		if(goodGuess == false)
-		{
-			Guess badGuess = popGuess();
-			restoreFromGuess(badGuess);
-			badGuess.guessSpace->strikeSymbol(badGuess.guessSymbol);
-			statNumBadGuess++;
+			goodGuess = false;
 		}
 		else
 		{
-			removeRemain(randomBestSpaceIndex);
+			int randMove = getRandMove(randSpace);
+
+			// save guess
+			Guess guess;
+			guess.guessSpace = randSpace;
+			guess.guessSymbol = randMove;
+			for (int i = 0; i < N; i++)
+			{
+				for (int k = 0; k < N; k++)
+				{
+					guess.boardState[i][k] = board[i][k];
+				}
+			}
+			for (int i = 0; i < numRemain; i++)
+			{
+				guess.remainListState[i] = remainList[i];
+				guess.numRemainState = numRemain;
+			}
+			pushGuess(guess);
+
+			// make move
+			randSpace->symbol = randMove;
+
+			// update and check cousins
+			vector<Space*> cList = getCousins(remainList[randomBestSpaceIndex]);
+			for (int i = 0; i < (int)cList.size(); i++)
+			{
+				Space* currSpace = cList.at(i);
+				currSpace->strikeSymbol(randMove);
+				if (currSpace->symbol == EMPTY_FLAG && currSpace->numv == 0)
+				{
+					goodGuess = false;
+				}
+			}
+
+			if (goodGuess == false)
+			{
+				Guess badGuess = popGuess();
+				restoreFromGuess(badGuess);
+				badGuess.guessSpace->strikeSymbol(badGuess.guessSymbol);
+				statNumBadGuess++;
+			}
+			else
+			{
+				removeRemain(randomBestSpaceIndex);
+			}
 		}
 	}
 }
