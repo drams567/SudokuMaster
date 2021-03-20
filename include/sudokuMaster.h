@@ -66,6 +66,9 @@ public:
 	
 	// Setters and Getters //
 	string getBoard();
+	int getNumGuess();
+	int getNumBadGuess();
+	int getNumMoves();
 	
 	// Debugging //
 	void dumpBoard();

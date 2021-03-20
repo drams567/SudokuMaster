@@ -8,13 +8,13 @@ using namespace std;
 // Constructors //
 SMaster::SMaster() 
 {
-   string boardString(NUM_SPACES, EMPTY_FLAG);
+	string boardString(NUM_SPACES, EMPTY_FLAG);
 	init(boardString);
 }
 
 SMaster::SMaster(string boardString)
 {
-   init(boardString);
+	init(boardString);
 }
 
 // Destructor //
@@ -81,6 +81,10 @@ string SMaster::getBoard()
 	
 	return boardString;
 }
+
+int SMaster::getNumGuess() { return statNumGuess; }
+int SMaster::getNumBadGuess() { return statNumBadGuess; }
+int SMaster::getNumMoves() { return statNumMoves; }
 
 // Debugging //
 void SMaster::dumpBoard()

@@ -46,6 +46,7 @@ int main(const int argc, const char* argv[])
 	do
 	{
 		Solver.solve(Generator.genBoard(boardSize));
+
 		result = Checker.check(Solver.getBoard());
 		if(result < 0)
 		{
@@ -56,7 +57,6 @@ int main(const int argc, const char* argv[])
 		{
 			cout << i << " complete" << endl;
 		}
-
 		i++;
       
 	} while(result != -1 && i <= numRuns);
