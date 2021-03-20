@@ -47,9 +47,10 @@ public:
 	void init(string boardString);
 	void makeGuess();
 	void makeMove(Space* space, bool isGuess);
-	void restoreFromGuess(Guess badGuess);
 	void cullReserved(int startX, int startY);
-	
+	void recallLastGuess();
+	void saveStateAsGuess(Space* space, int move);
+
 	// Helpers //
 	int getBestSpaceIndex();
 	vector<Space*> getCousins(Space* inSpace);

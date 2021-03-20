@@ -312,10 +312,7 @@ void SMaster::makeGuess()
 		{
 			while (bestSpace->numv == 0)
 			{
-				Guess badGuess = popGuess();
-				restoreFromGuess(badGuess);
-				badGuess.guessSpace->strikeSymbol(badGuess.guessSymbol);
-				statNumBadGuess++;
+				recallLastGuess();
 			}
 			goodGuess = false;
 		}
@@ -323,7 +320,6 @@ void SMaster::makeGuess()
 		{
 			makeMove(bestSpace, true);
 			statNumMoves++;
-			statNumGuess++;
 			vector<Space*> cList = getCousins(bestSpace);
 			for (int i = 0; i < (int)cList.size(); i++)
 			{
@@ -353,10 +349,7 @@ void SMaster::makeGuess()
 
 			if (goodGuess == false)
 			{
-				Guess badGuess = popGuess();
-				restoreFromGuess(badGuess);
-				badGuess.guessSpace->strikeSymbol(badGuess.guessSymbol);
-				statNumBadGuess++;
+				recallLastGuess();
 			}
 			else
 			{
@@ -364,6 +357,8 @@ void SMaster::makeGuess()
 			}
 		}
 	}
+
+	statNumGuess++;
 }
 
 void SMaster::makeMove(Space* space, bool isGuess)
@@ -374,41 +369,25 @@ void SMaster::makeMove(Space* space, bool isGuess)
 	{
 		if(space->vmap[i] == true)
 			symbol = i;
-		
 		i++;
 	}
 	
 	if(isGuess == true)
 	{
-		Guess guess;
-		guess.guessSpace = space;
-		guess.guessSymbol = symbol;
-		for(int i = 0; i < N; i++)
-		{
-			for(int k = 0; k < N; k++)
-			{
-				guess.boardState[i][k] = board[i][k];
-			}
-		}
-		
-		for(int i = 0; i < numRemain; i++)
-		{
-			guess.remainListState[i] = remainList[i];
-			guess.numRemainState = numRemain;
-		}
-		
-		pushGuess(guess);
+		saveStateAsGuess(space, symbol);
 	}
 	
-	vector<Space*> cList = getCousins(space);	
 	space->symbol = symbol;
+	vector<Space*> cList = getCousins(space);
 	for(vector<Space*>::iterator spaceIt = cList.begin(); spaceIt != cList.end(); spaceIt++)
 		(*spaceIt)->strikeSymbol(symbol);
 	
 }
 
-void SMaster::restoreFromGuess(Guess badGuess)
+void SMaster::recallLastGuess()
 {
+	Guess badGuess = popGuess();
+	
 	for(int i = 0; i < N; i++)
 	{
 		for(int k = 0; k < N; k++)
@@ -421,6 +400,10 @@ void SMaster::restoreFromGuess(Guess badGuess)
 		remainList[i] = badGuess.remainListState[i];
 	}
 	numRemain = badGuess.numRemainState;
+	
+	badGuess.guessSpace->strikeSymbol(badGuess.guessSymbol);
+
+	statNumBadGuess++;
 }
 
 void SMaster::cullReserved(int startX, int startY)
@@ -547,6 +530,28 @@ void SMaster::cullReserved(int startX, int startY)
 	}	
 }
 
+void SMaster::saveStateAsGuess(Space* space, int move)
+{
+	Guess guess;
+	guess.guessSpace = space;
+	guess.guessSymbol = move;
+	for (int i = 0; i < N; i++)
+	{
+		for (int k = 0; k < N; k++)
+		{
+			guess.boardState[i][k] = board[i][k];
+		}
+	}
+
+	for (int i = 0; i < numRemain; i++)
+	{
+		guess.remainListState[i] = remainList[i];
+		guess.numRemainState = numRemain;
+	}
+
+	pushGuess(guess);
+}
+
 // Solve Board //
 void SMaster::solve()
 {
@@ -569,10 +574,7 @@ void SMaster::solve()
 				Space* badSpace = remainList[i];
 				while(badSpace->numv == 0)
 				{
-					Guess badGuess = popGuess();
-					restoreFromGuess(badGuess);
-					statNumBadGuess++;
-					badGuess.guessSpace->strikeSymbol(badGuess.guessSymbol);
+					recallLastGuess();
 				}
 			}
 			else
@@ -616,10 +618,7 @@ void SMaster::testSolve()
 				Space* badSpace = remainList[i];
 				while(badSpace->numv == 0)
 				{
-					Guess badGuess = popGuess();
-					restoreFromGuess(badGuess);
-					statNumBadGuess++;
-					badGuess.guessSpace->strikeSymbol(badGuess.guessSymbol);
+					recallLastGuess();
 				}
 			}
 			else

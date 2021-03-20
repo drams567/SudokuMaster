@@ -97,10 +97,7 @@ void SGen::makeRandGuess()
 		{
 			while (randSpace->numv == 0)
 			{
-				Guess badGuess = popGuess();
-				restoreFromGuess(badGuess);
-				badGuess.guessSpace->strikeSymbol(badGuess.guessSymbol);
-				statNumBadGuess++;
+				recallLastGuess();
 			}
 			goodGuess = false;
 		}
@@ -109,22 +106,7 @@ void SGen::makeRandGuess()
 			int randMove = getRandMove(randSpace);
 
 			// save guess
-			Guess guess;
-			guess.guessSpace = randSpace;
-			guess.guessSymbol = randMove;
-			for (int i = 0; i < N; i++)
-			{
-				for (int k = 0; k < N; k++)
-				{
-					guess.boardState[i][k] = board[i][k];
-				}
-			}
-			for (int i = 0; i < numRemain; i++)
-			{
-				guess.remainListState[i] = remainList[i];
-				guess.numRemainState = numRemain;
-			}
-			pushGuess(guess);
+			saveStateAsGuess(randSpace, randMove);
 
 			// make move
 			randSpace->symbol = randMove;
@@ -143,10 +125,7 @@ void SGen::makeRandGuess()
 
 			if (goodGuess == false)
 			{
-				Guess badGuess = popGuess();
-				restoreFromGuess(badGuess);
-				badGuess.guessSpace->strikeSymbol(badGuess.guessSymbol);
-				statNumBadGuess++;
+				recallLastGuess();
 			}
 			else
 			{
@@ -178,9 +157,7 @@ string SGen::genBoard(const int numGiven)
 				Space* badSpace = remainList[i];
 				while(badSpace->numv == 0)
 				{
-					Guess badGuess = popGuess();
-					restoreFromGuess(badGuess);
-					badGuess.guessSpace->strikeSymbol(badGuess.guessSymbol);
+					recallLastGuess();
 				}
 			}
 			else
@@ -236,9 +213,7 @@ void SGen::test(const int numGiven)
 				Space* badSpace = remainList[i];
 				while(badSpace->numv == 0)
 				{
-					Guess badGuess = popGuess();
-					restoreFromGuess(badGuess);
-					badGuess.guessSpace->strikeSymbol(badGuess.guessSymbol);
+					recallLastGuess();
 				}
 			}
 			else
