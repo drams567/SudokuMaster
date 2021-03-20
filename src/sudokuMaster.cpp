@@ -319,7 +319,6 @@ void SMaster::makeGuess()
 		else
 		{
 			makeMove(bestSpace, true);
-			statNumMoves++;
 			vector<Space*> cList = getCousins(bestSpace);
 			for (int i = 0; i < (int)cList.size(); i++)
 			{
@@ -357,8 +356,6 @@ void SMaster::makeGuess()
 			}
 		}
 	}
-
-	statNumGuess++;
 }
 
 void SMaster::makeMove(Space* space, bool isGuess)
@@ -375,6 +372,7 @@ void SMaster::makeMove(Space* space, bool isGuess)
 	if(isGuess == true)
 	{
 		saveStateAsGuess(space, symbol);
+		statNumGuess++;
 	}
 	
 	space->symbol = symbol;
@@ -382,6 +380,7 @@ void SMaster::makeMove(Space* space, bool isGuess)
 	for(vector<Space*>::iterator spaceIt = cList.begin(); spaceIt != cList.end(); spaceIt++)
 		(*spaceIt)->strikeSymbol(symbol);
 	
+	statNumMoves++;
 }
 
 void SMaster::recallLastGuess()
@@ -565,7 +564,6 @@ void SMaster::solve()
 			if(remainList[i]->numv == 1)
 	      {
 				makeMove(remainList[i], false);
-				statNumMoves++;
 				removeRemain(i);
 				stuckFlag = false;
 			}
@@ -609,7 +607,6 @@ void SMaster::testSolve()
 			if(remainList[i]->numv == 1)
 	      {
 				makeMove(remainList[i], false);
-				statNumMoves++;
 				removeRemain(i);
 				stuckFlag = false;
 			}
