@@ -43,16 +43,30 @@ int main(const int argc, const char* argv[])
 	int i = 0;
 	int numRuns = 10000;
 	int boardSize = 10;
+	int totalNumGuess = 0;
+	int totalNumBadGuess = 0;
+	int totalNumMoves = 0;
 	do
 	{
 		Solver.solve(Generator.genBoard(boardSize));
 
 		result = Checker.check(Solver.getBoard());
-		if(result < 0)
+		if(result == 1)
 		{
-			cout << "MAIN: Failure, " << Checker.getNumViolate() << " violations found" << endl;
+			totalNumGuess += Solver.getNumGuess();
+			totalNumBadGuess += Solver.getNumBadGuess();
+			totalNumMoves += Solver.getNumMoves();
 		}
-      
+		else if(result == 0)
+		{
+			cout << "MAIN: Run " << (i+1) << " failed, " << Checker.getNumMissing() << " spaces missing." << endl;
+		}
+		else
+		{
+			cout << "MAIN: Run " << (i+1) << " failed, " << Checker.getNumViolate() << " violations found." << endl;
+		}
+
+
 		if(i % (numRuns/10) == 0)
 		{
 			cout << i << " complete" << endl;
@@ -61,5 +75,13 @@ int main(const int argc, const char* argv[])
       
 	} while(result != -1 && i <= numRuns);
 	
+	double avgNumGuess = (double)totalNumGuess / (double)numRuns;
+	double avgNumBadGuess = (double)totalNumBadGuess / (double)numRuns;
+	double avgNumMoves = (double)totalNumMoves / (double)numRuns;
+
+	cout << endl << "----Averages----" << endl;
+	cout << "Guesses:\t" << avgNumGuess << " (" << avgNumBadGuess << " of them bad on avg)" << endl;
+	cout << "Moves:\t\t" << avgNumMoves << endl;
+
 	return 0;
 }
