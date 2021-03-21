@@ -17,7 +17,7 @@ class SGen : public SMaster
 {
 public:
 	SGen();
-	SGen(unsigned int seed);
+	SGen(const unsigned int seed);
 	~SGen();
 	
 	void init();

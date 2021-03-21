@@ -4,7 +4,7 @@ using namespace std;
 
 /*********************/
 /* Utility Functions */
-int convertToSymbol(char charSymbol)
+int convertToSymbol(const char charSymbol)
 {
 	if(charSymbol >= '0')
 		return (int)(charSymbol - '0') - 1;
@@ -12,7 +12,7 @@ int convertToSymbol(char charSymbol)
 		return EMPTY_FLAG;
 }
 
-char convertToPrintSymbol(int inSymbol)
+char convertToPrintSymbol(const int inSymbol)
 {
 	if(inSymbol == EMPTY_FLAG)
 		return EMPTY_SYMBOL;
@@ -20,7 +20,7 @@ char convertToPrintSymbol(int inSymbol)
 		return ('0' + inSymbol) + 1; // literal acts as an offset
 }
 
-void printBoard(string boardString)
+void printBoard(const string boardString)
 {
 	cout << endl;
 	cout << string(N*3 + 5, '-') << endl;

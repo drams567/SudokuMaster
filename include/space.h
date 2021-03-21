@@ -19,16 +19,16 @@ public:
 	~Space();
 	
 	// Operators //
-	void operator=(Space inSpace);
+	void operator=(const Space &inSpace);
 	
 	// Initialize //
-	void init(int x, int y, int newSymbol);
+	void init(const int x, const int y, const int newSymbol);
 	
 	// Testing //
 	void dump();
 
 	// Methods //
-	bool strikeSymbol(int badSymbol);
+	bool strikeSymbol(const int badSymbol);
 	void getRegion(int &startX, int &startY);
 };
 

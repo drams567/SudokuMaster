@@ -12,7 +12,7 @@ SMaster::SMaster()
 	init(boardString);
 }
 
-SMaster::SMaster(string boardString)
+SMaster::SMaster(const string boardString)
 {
 	init(boardString);
 }
@@ -28,7 +28,7 @@ SMaster::~SMaster()
 }
 
 // List Functions //
-void SMaster::pushRemain(int x, int y)
+void SMaster::pushRemain(const int x, const int y)
 {
 	remainList[numRemain] = &board[x][y];
 	numRemain++;
@@ -46,7 +46,7 @@ void SMaster::popRemain()
 	remainList[numRemain] = NULL;
 }
 
-void SMaster::removeRemain(int i)
+void SMaster::removeRemain(const int i)
 {
 	numRemain--;
 	remainList[i] = remainList[numRemain];
@@ -196,7 +196,7 @@ vector<Space*> SMaster::getCousins(Space* inSpace)
 	return cList;
 }
 
-bool SMaster::checkRegionState(int startX, int startY)
+bool SMaster::checkRegionState(const int startX, const int startY)
 {
 	bool regRemainList[N];
 	bool regVList[N];
@@ -247,7 +247,7 @@ bool SMaster::checkRegionState(int startX, int startY)
 }
 
 // Procedures //
-void SMaster::init(string boardString)
+void SMaster::init(const string boardString)
 {
    // Initialize stats
 	statNumGuess = 0;
@@ -409,7 +409,7 @@ void SMaster::recallLastGuess()
 	statNumBadGuess++;
 }
 
-void SMaster::cullReserved(int startX, int startY)
+void SMaster::cullReserved(const int startX, const int startY)
 {
 	// Init
 	int endX = startX + REGION_DIM;
@@ -444,7 +444,8 @@ void SMaster::cullReserved(int startX, int startY)
 		int numCols = (int)colList[i].size();
 		bool distinctRow;
 		bool distinctCol;
-		int row, col;
+		int row = -1;
+		int col = -1;
 		int k;
 		
 		// check for distinct row
@@ -592,7 +593,7 @@ void SMaster::solve()
 	}
 }
 
-void SMaster::solve(string boardString)
+void SMaster::solve(const string boardString)
 {
    init(boardString);
    solve();

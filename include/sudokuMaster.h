@@ -35,32 +35,32 @@ protected:
 public:
 	// Construct and Destruct //
 	SMaster();
-	SMaster(string boardString);
+	SMaster(const string boardString);
 	~SMaster();
 	
 	// Solve Board //
 	void solve();
-	void solve(string boardString);
+	void solve(const string boardString);
 	void testSolve();
 
 	// Procedures //
-	void init(string boardString);
+	void init(const string boardString);
 	void makeGuess();
 	void makeMove(Space* space, bool isGuess);
-	void cullReserved(int startX, int startY);
+	void cullReserved(const int startX, const int startY);
 	void recallLastGuess();
 	void saveStateAsGuess(Space* space, int move);
 
 	// Helpers //
 	int getBestSpaceIndex();
 	vector<Space*> getCousins(Space* inSpace);
-	bool checkRegionState(int startX, int startY);
+	bool checkRegionState(const int startX, const int startY);
 	
 	// List Functions //
-	void pushRemain(int x, int y);
+	void pushRemain(const int x, const int y);
 	void pushRemain(Space* inSpace);
 	void popRemain();
-	void removeRemain(int i);
+	void removeRemain(const int i);
 	void pushGuess(Guess newGuess);
 	Guess popGuess();
 	

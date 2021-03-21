@@ -11,7 +11,7 @@ Space::Space(){}
 Space::~Space(){}
 
 // Operators //
-void Space::operator=(Space inSpace)
+void Space::operator=(const Space &inSpace)
 {
 	symbol = inSpace.symbol;
 	index[X] = inSpace.index[X];
@@ -22,7 +22,7 @@ void Space::operator=(Space inSpace)
 }
 
 // Initialize //
-void Space::init(int x, int y, int newSymbol)
+void Space::init(const int x, const int y, const int newSymbol)
 {
 	symbol = newSymbol;
 	index[X] = x;
@@ -65,7 +65,7 @@ void Space::dump()
 }
 
 // Methods //
-bool Space::strikeSymbol(int badSymbol)
+bool Space::strikeSymbol(const int badSymbol)
 {
 	// Cull candidate symbol
 	if(vmap[badSymbol] == true)

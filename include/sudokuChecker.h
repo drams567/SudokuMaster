@@ -18,11 +18,11 @@ private:
 	
 public:
 	SChecker();
-	SChecker(string boardString);
+	SChecker(const string boardString);
 	~SChecker();
 
-	void init(string boardString);
-	int check(string boardString);
+	void init(const string boardString);
+	int check(const string boardString);
 	int check();
 	void dumpResults();
    

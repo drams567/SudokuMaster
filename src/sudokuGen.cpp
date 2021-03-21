@@ -8,7 +8,7 @@ SGen::SGen()
 	init();
 }
 
-SGen::SGen(unsigned int seed)
+SGen::SGen(const unsigned int seed)
 {
 	srand(seed);
 	init();

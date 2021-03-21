@@ -8,14 +8,14 @@ SChecker::SChecker()
 	init(boardString);
 }
 
-SChecker::SChecker(string boardString)
+SChecker::SChecker(const string boardString)
 {
 	init(boardString);
 }
 
 SChecker::~SChecker(){}
 
-void SChecker::init(string boardString)
+void SChecker::init(const string boardString)
 {
 	numViolate = 0;
 	numMissing = 0;
@@ -129,7 +129,7 @@ int SChecker::check()
    return 1;   // win
 }
 
-int SChecker::check(string boardString)
+int SChecker::check(const string boardString)
 {
 	init(boardString);
 	return check();

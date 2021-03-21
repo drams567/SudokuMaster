@@ -6,6 +6,6 @@ using namespace std;
 
 /*********************/
 /* Utility Functions */
-int convertToSymbol(char charSymbol);
-char convertToPrintSymbol(int inSymbol);
-void printBoard(string boardString);
+int convertToSymbol(const char charSymbol);
+char convertToPrintSymbol(const int inSymbol);
+void printBoard(const string boardString);
