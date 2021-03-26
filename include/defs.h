@@ -3,11 +3,10 @@
 
 /************************/
 /****** Constants *******/
-const int N = 9;
+const int REGION_DIM = 3;
+const int N = REGION_DIM * REGION_DIM;
 const int NUM_SPACES = N*N;
 const int NUM_COUSINS = N*3;
-const int REGION_FACTOR = 3;
-const int REGION_DIM = N / REGION_FACTOR;
 const int X = 0;
 const int Y = 1;
 const int EMPTY_FLAG = -1;
