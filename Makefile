@@ -35,10 +35,10 @@ util.o: util.cpp util.h defs.h
 BOARD=boards/hard.txt
 .PHONY:
 run:
-	./$(EXE) $(BOARD)
+	./$(EXE) 10000 20
 .PHONY:
 valrun:
-	valgrind ./$(EXE) $(BOARD)
+	valgrind ./$(EXE) 10000 20
 .PHONY:
 test:
 	./$(EXE) boards/test.txt
