@@ -21,15 +21,15 @@ public:
 	// Operators //
 	void operator=(const Space &inSpace);
 	
-	// Initialize //
+	// Helpers //
 	void init(const int x, const int y, const int newSymbol);
-	
-	// Testing //
-	void dump();
 
 	// Methods //
 	bool strikeSymbol(const int badSymbol);
 	void getRegion(int &startX, int &startY);
+
+	// Testing //
+	void dump();
 };
 
 #endif

@@ -21,7 +21,7 @@ void Space::operator=(const Space &inSpace)
 	numv = inSpace.numv;
 }
 
-// Initialize //
+// Helpers //
 void Space::init(const int x, const int y, const int newSymbol)
 {
 	symbol = newSymbol;
@@ -35,7 +35,7 @@ void Space::init(const int x, const int y, const int newSymbol)
 			vmap[i] = true;
 		numv = N;
 	}
-	// Symbol is given
+	// Space starts as given
 	else
 	{
 		for(int i = 0; i < N; i++)

@@ -14,10 +14,10 @@ using namespace std;
 /****** Classes ******/
 struct Guess {
 	Space* guessSpace;		// Guess Information members
-	int guessSymbol;		//
+	int guessSymbol;		// ^
 	Space boardState[N][N];				// Game state information members
-	Space* remainListState[NUM_SPACES];	//
-	int numRemainState;					//
+	Space* remainListState[NUM_SPACES];	// ^
+	int numRemainState;					// ^
 };
 
 class SMaster {

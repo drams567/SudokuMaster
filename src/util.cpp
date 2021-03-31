@@ -20,6 +20,7 @@ char convertToPrintSymbol(const int inSymbol)
 		return ('0' + inSymbol) + 1; // literal acts as an offset
 }
 
+// printBoard(): Displays a board to std out for human consumption.
 void printBoard(const string boardString)
 {
 	cout << endl;

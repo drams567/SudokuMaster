@@ -3,9 +3,9 @@
 
 /************************/
 /****** Constants *******/
-const int REGION_DIM = 3;
-const int N = REGION_DIM * REGION_DIM;
-const int NUM_SPACES = N*N;
+const int REGION_DIM = 3;				// dimension of a region square (standard size is 3)
+const int N = REGION_DIM * REGION_DIM;	// number of spaces in a row, column, or region square (standard is 9)
+const int NUM_SPACES = N*N;				// total number of spaces in the puzzle
 const int NUM_COUSINS = N*3;
 const int X = 0;
 const int Y = 1;

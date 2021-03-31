@@ -22,9 +22,8 @@ SMaster::~SMaster()
 {
 	// Empty lists for good practice
 	for(int i = 0; i < NUM_SPACES; i++)
-	{
 		remainList[i] = NULL;
-	}
+
 }
 
 // List Functions //
@@ -243,7 +242,6 @@ bool SMaster::checkRegionState(const int startX, const int startY)
 	}
 
 	return true;
-
 }
 
 // Procedures //
